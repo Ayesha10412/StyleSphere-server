@@ -28,6 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const userCollection = client.db("ShopDB").collection("users");
+    const sellerCollection = client.db("ShopDB").collection("sellers");
     //jwt token
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -105,6 +106,53 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //get admin
+    app.get("/user/admin/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: "Forbidden access!" });
+      }
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      let admin = false;
+      if (result) {
+        admin = result?.role === "admin";
+      }
+      console.log(admin);
+      res.send({ admin });
+    });
+
+    //create seller
+    app.post("/sellers", async (req, res) => {
+      const seller = req.body;
+      const result = await sellerCollection.insertOne(seller);
+      res.send(result);
+    });
+    //get sellers
+    app.get("/sellers", async (req, res) => {
+      const sellers = await sellerCollection.find().toArray();
+      res.send(sellers);
+    });
+    //make seller
+    app.patch("/seller/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          role: "seller",
+        },
+      };
+      const seller = await sellerCollection.updateOne(query, updatedDoc);
+      res.send(seller);
+    });
+    //delete seller
+    app.delete("/seller/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await sellerCollection.deleteOne(query);
       res.send(result);
     });
     await client.db("admin").command({ ping: 1 });
