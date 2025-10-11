@@ -125,6 +125,38 @@ async function run() {
       res.send({ admin });
     });
 
+    //update information for admin and user
+    app.patch("/user/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const { id } = req.params;
+      const { name, photo } = req.body;
+      try {
+        const user = await userCollection(
+          { _id: new ObjectId(id) },
+          { $set: { name, photo } }
+        );
+        if (user.matchedCount === 0) {
+          return res.status(404).json({ message: "User not found!" });
+        }
+        if (user.modifiedCount === 0) {
+          return res
+            .status(200)
+            .json({ modifiedCount: 0, message: "No changes detected!" });
+        }
+        const updatedUser = await userCollection.findOne({
+          _id: new ObjectId(id),
+        });
+        res
+          .status(200)
+          .json({
+            modifiedCount: 1,
+            message: "Profile Updated Successfully!",
+            updatedUser,
+          });
+      } catch (error) {
+        return res.status(500).json({ message: "Server error!" });
+      }
+    });
+
     //create seller
     app.post("/sellers", async (req, res) => {
       const seller = req.body;
