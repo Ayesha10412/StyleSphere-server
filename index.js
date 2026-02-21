@@ -10,7 +10,7 @@ app.use(
     origin: "http://localhost:5173",
     credentials: true,
     optionsSuccessStatus: 200,
-  })
+  }),
 );
 app.use(express.json());
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -29,6 +29,9 @@ async function run() {
   try {
     const userCollection = client.db("ShopDB").collection("users");
     const sellerCollection = client.db("ShopDB").collection("sellers");
+    const productCollection = client.db("ShopDB").collection("products");
+    const orderCollection = client.db("ShopDB").collection("orders");
+    const reviewCollection = client.db("ShopDB").collection("reviews");
     //jwt token
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -65,7 +68,16 @@ async function run() {
       }
       next();
     };
-
+    //verify seller
+    const verifySeller = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const seller = await sellerCollection.findOne(query);
+      if (!seller || seller?.role !== "seller") {
+        return res.status(403).send({ message: "Forbidden access!" });
+      }
+      next();
+    };
     //create user
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -99,7 +111,7 @@ async function run() {
         };
         const result = await userCollection.updateOne(query, updateDoc);
         res.send(result);
-      }
+      },
     );
     //delete a user
     app.delete("/user/:id", verifyToken, verifyAdmin, async (req, res) => {
@@ -121,7 +133,7 @@ async function run() {
       if (result) {
         admin = result?.role === "admin";
       }
-      console.log(admin);
+      // console.log(admin);
       res.send({ admin });
     });
 
@@ -130,9 +142,9 @@ async function run() {
       const { id } = req.params;
       const { name, photo } = req.body;
       try {
-        const user = await userCollection(
+        const user = await userCollection.updateOne(
           { _id: new ObjectId(id) },
-          { $set: { name, photo } }
+          { $set: { name, photo } },
         );
         if (user.matchedCount === 0) {
           return res.status(404).json({ message: "User not found!" });
@@ -145,13 +157,11 @@ async function run() {
         const updatedUser = await userCollection.findOne({
           _id: new ObjectId(id),
         });
-        res
-          .status(200)
-          .json({
-            modifiedCount: 1,
-            message: "Profile Updated Successfully!",
-            updatedUser,
-          });
+        res.status(200).json({
+          modifiedCount: 1,
+          message: "Profile Updated Successfully!",
+          updatedUser,
+        });
       } catch (error) {
         return res.status(500).json({ message: "Server error!" });
       }
@@ -168,6 +178,12 @@ async function run() {
       const sellers = await sellerCollection.find().toArray();
       res.send(sellers);
     });
+    //get seller by email
+    app.get("/seller/profile/:email", verifyToken, async (req, res) => {
+      const email = req.params.email;
+      const seller = await sellerCollection.findOne({ email });
+      res.send(seller);
+    });
     //make seller
     app.patch("/seller/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
@@ -180,6 +196,36 @@ async function run() {
       const seller = await sellerCollection.updateOne(query, updatedDoc);
       res.send(seller);
     });
+    //update own information
+    app.patch("/seller/profile/:id", verifyToken, async (req, res) => {
+      const { id } = req.params;
+      const { name, photo, phone, address } = req.body;
+      try {
+        const seller = await sellerCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { name, photo, address, phone } },
+        );
+
+        if (seller.matchedCount === 0) {
+          return res.status(404).json({ message: "Seller not found!" });
+        }
+        if (seller.modifiedCount === 0) {
+          return res
+            .status(200)
+            .json({ modifiedCount, message: "No changes detected!" });
+        }
+        const updatedSeller = await sellerCollection.findOne({
+          _id: new ObjectId(id),
+        });
+        return res.status(200).json({
+          modifiedCount: 1,
+          message: "Profile updated successfully!",
+          updatedSeller,
+        });
+      } catch (error) {
+        return res.status(500).json({ message: "Server error!" });
+      }
+    });
     //delete seller
     app.delete("/seller/:id", verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id;
@@ -187,9 +233,87 @@ async function run() {
       const result = await sellerCollection.deleteOne(query);
       res.send(result);
     });
+
+    //add products
+    app.post("/products", verifyToken, async (req, res) => {
+      const { role } = req.decoded;
+      if (role !== "seller") {
+        return res
+          .status(403)
+          .send({ message: "Seller only can add the products!" });
+      }
+      const product = req.body;
+      product.status = "pending"; //admin approval
+      product.createAt = new Date();
+      const result = await productCollection.insertOne(product);
+      return res.status(201).send({
+        message: "Product added successfully! Waiting for admin approval.",
+        result,
+      });
+    });
+
+    //get all products
+    app.get("/products", verifyToken, async (req, res) => {
+      const products = await productCollection.find().toArray();
+      return res.send(products);
+    });
+    //get products by id
+    app.get("/product/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const product = await productCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      if (!product) {
+        return res.status(404).send({ message: "Product not found!" });
+      }
+      res.send(product);
+    });
+    //update product by id
+    app.patch("/product/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const product = await productCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      if (
+        req.decoded.email !== product.seller ||
+        Emailreq.decoded.role !== "admin"
+      ) {
+        return res.status(403).send({ message: "Forbidden access!" });
+      }
+      const updatedDoc = { $set: req.body };
+      const result = await productCollection.updateOne(
+        { _id: new ObjectId(id) },
+        updatedDoc,
+      );
+      return res
+        .status(201)
+        .send({ message: "Product updated successfully!", result });
+    });
+
+    //delete product by id
+    app.delete("/product/:id", verifyToken, async (req, res) => {
+      const id = req.params.id;
+      const product = await productCollection.findOne({
+        _id: new ObjectId(id),
+      });
+      if (!product) {
+        return res.status(404).send({ message: "Product not found!" });
+      }
+      if (
+        res.decoded.email !== product.sellerEmail ||
+        req.decoded.role !== "admin"
+      ) {
+        return res.status(403).send({ message: "Forbidden access!" });
+      }
+      const result = await productCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+      return res.status(200).send({ message: "Product deleted successfully!", result });
+    });
+
     await client.db("admin").command({ ping: 1 });
     console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
+      "Pinged your deployment. You successfully connected to MongoDB!",
     );
   } finally {
     // Ensures that the client will close when you finish/error
