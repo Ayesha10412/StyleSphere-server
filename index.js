@@ -308,9 +308,22 @@ async function run() {
       const result = await productCollection.deleteOne({
         _id: new ObjectId(id),
       });
-      return res.status(200).send({ message: "Product deleted successfully!", result });
+      return res
+        .status(200)
+        .send({ message: "Product deleted successfully!", result });
     });
-
+    //approve product by admin
+    app.patch("/produt/id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const result = await productCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: "approved" } },
+      );
+      return res
+        .status(200)
+        .send({ message: "Product approved successfully!", result });
+    });
+    /////////////////////////////////////////////////////
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
