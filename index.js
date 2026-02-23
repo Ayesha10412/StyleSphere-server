@@ -95,7 +95,25 @@ async function run() {
       const users = await userCollection.find().toArray();
       res.send(users);
     });
-
+    //get user by email
+    app.get("/user/:email", verifyToken, async (req, res) => {
+      try {
+        const email = req.decoded.email;
+        if (email !== req.decoded.email) {
+          return res.status(403).send({ message: "Forbidden access!" });
+        }
+        let result = await userCollection.findOne({ email: email });
+        if (!result) {
+          result = await sellerCollection.findOne({ email: email });
+        }
+        if (!result) {
+          return res.status(404).send({ message: "User not found!" });
+        }
+        res.send(result);
+      } catch (error) {
+        return res.status(500).send({ message: "Server error!" });
+      }
+    });
     //update user
     app.patch(
       "/users/admin/:id",
@@ -138,35 +156,51 @@ async function run() {
     });
 
     //update information for admin and user
-    app.patch("/user/:id", verifyToken, verifyAdmin, async (req, res) => {
+    app.patch("/user/:id", verifyToken, async (req, res) => {
       const { id } = req.params;
-      const { name, photo } = req.body;
+      const { name, photo, phone, address } = req.body;
+
       try {
-        const user = await userCollection.updateOne(
+        // First, try userCollection
+        let user = await userCollection.updateOne(
           { _id: new ObjectId(id) },
-          { $set: { name, photo } },
+          { $set: { name, photo, phone, address } },
         );
+
+        // If not found, try sellerCollection
+        let collectionUsed = "user";
         if (user.matchedCount === 0) {
-          return res.status(404).json({ message: "User not found!" });
+          user = await sellerCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { name, photo, phone, address } },
+          );
+          collectionUsed = "seller";
         }
-        if (user.modifiedCount === 0) {
+
+        if (user.matchedCount === 0) {
           return res
-            .status(200)
-            .json({ modifiedCount: 0, message: "No changes detected!" });
+            .status(404)
+            .json({ message: "User not found in any collection!" });
         }
-        const updatedUser = await userCollection.findOne({
-          _id: new ObjectId(id),
-        });
+
+        const updatedUser =
+          collectionUsed === "user"
+            ? await userCollection.findOne({ _id: new ObjectId(id) })
+            : await sellerCollection.findOne({ _id: new ObjectId(id) });
+
         res.status(200).json({
-          modifiedCount: 1,
-          message: "Profile Updated Successfully!",
+          modifiedCount: user.modifiedCount,
+          message:
+            user.modifiedCount > 0
+              ? "Profile Updated Successfully!"
+              : "No changes detected!",
           updatedUser,
         });
       } catch (error) {
-        return res.status(500).json({ message: "Server error!" });
+        console.error(error);
+        res.status(500).json({ message: "Server error!" });
       }
     });
-
     //create seller
     app.post("/sellers", async (req, res) => {
       const seller = req.body;
