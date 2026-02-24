@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 5000;
+const multer = require("multer");
+const path = require("path");
 dotenv.config();
 app.use(
   cors({
@@ -24,7 +26,15 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
-
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
 async function run() {
   try {
     const userCollection = client.db("ShopDB").collection("users");
@@ -269,22 +279,31 @@ async function run() {
     });
 
     //add products
-    app.post("/products", verifyToken, async (req, res) => {
-      const { role } = req.decoded;
-      if (role !== "seller") {
-        return res
-          .status(403)
-          .send({ message: "Seller only can add the products!" });
-      }
-      const product = req.body;
-      product.status = "pending"; //admin approval
-      product.createAt = new Date();
-      const result = await productCollection.insertOne(product);
-      return res.status(201).send({
-        message: "Product added successfully! Waiting for admin approval.",
-        result,
-      });
-    });
+    app.post(
+      "/products",
+      verifyToken,verifySeller,
+      upload.single("image"),
+      async (req, res) => {
+        const { role } = req.decoded;
+        console.log("Role:", role)
+        if (role !== "seller") {
+          return res
+            .status(403)
+            .send({ message: "Seller only can add the products!" });
+        }
+        const product = req.body;
+        if (req.file) {
+          product.image = `/uploads/${req.file.filename}`;
+        }
+        product.status = "pending"; //admin approval
+        product.createAt = new Date();
+        const result = await productCollection.insertOne(product);
+        return res.status(201).send({
+          message: "Product added successfully! Waiting for admin approval.",
+          result,
+        });
+      },
+    );
 
     //get all products
     app.get("/products", verifyToken, async (req, res) => {
