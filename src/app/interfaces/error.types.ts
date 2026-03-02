@@ -2,8 +2,8 @@ export interface TErrorSources {
   path: string;
   message: string;
 }
-export interface IGenericErrorResponse {
+export interface TGenericErrorResponse {
   statusCode: number;
   message: string;
-  errorMessages: TErrorSources[];
+  errorMessages?: TErrorSources[];
 }
