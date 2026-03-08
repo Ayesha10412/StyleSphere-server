@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import app from '../../app'
+import { userRoutes } from './user.routes'
 export const router=Router()
-const mmoduleRoutes=[
+const moduleRoutes=[
 {
-    path:"/",
-    route:app
+    path:"/user",
+    route:userRoutes
 }
 ]
-mmoduleRoutes.forEach((route)=>{
+moduleRoutes.forEach((route)=>{
     router.use(route.path,route.route)
 })

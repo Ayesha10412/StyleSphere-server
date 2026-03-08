@@ -3,8 +3,8 @@ import { Types } from "mongoose";
 export enum ROLE {
   SUPER_ADMIN = "super_admin",
   ADMIN = "admin",
-  USER = "user",
-  GUIDE = "GUIDE",
+  CUSTOMER = "customer",
+  SELLER = "seller",
 }
 export interface IAuthProviders {
   provider: "google" | "credentials";

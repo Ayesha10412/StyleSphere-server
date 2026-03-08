@@ -5,6 +5,13 @@ import cookieParser from "cookie-parser";
 import passport from "passport";
 import cors from "cors";
 import { router } from "./app/routes";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
+<<<<<<< HEAD
+=======
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
+>>>>>>> d77f87a (Initial commit without secrets)
 const app = express();
 app.use(
   expressSession({
@@ -31,6 +38,6 @@ app.get("/",(req:Request,res:Response)=>{
         message:"Welcome to StyleSphere Backend"
     })
 })
-// app.use(globalErrorHandler)
-// app.use(notFound)
+ app.use(globalErrorHandler)
+ app.use(notFound)
 export default app;
