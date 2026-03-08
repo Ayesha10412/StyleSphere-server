@@ -11,6 +11,12 @@ router.get(
   //  checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN),
   UserController.getAllUser,
 );
+router.get("/me", checkAuth(), UserController.getMe);
+router.get(
+  "/:id",
+  checkAuth(ROLE.SUPER_ADMIN, ROLE.ADMIN),
+  UserController.getSingleUser,
+);
 router.post(
   "/register",
   validateRequest(createUserValidation),

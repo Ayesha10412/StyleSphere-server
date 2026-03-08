@@ -19,13 +19,13 @@ const createUser = catchAsync(
 ///get all user
 const getAllUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const users = await UserService.getAlluser(req.query as IQuery);
+    const users = await UserService.getAllUser(req.query as IQuery);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Retrieved all user successfully",
       data: users.data,
-      meta:users.meta
+      meta: users.meta,
     });
   },
 );
@@ -48,8 +48,53 @@ const updateUser = catchAsync(
     });
   },
 );
+//delete user
+const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+
+    const decodedToken = req.user;
+    const user = await UserService.deleteUser(
+      userId as string,
+      decodedToken as JwtPayload,
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "User deleted successfully!",
+      data: user,
+    });
+  },
+);
+const getMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const user = await UserService.getMe(decodedToken.userId);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "User retrieved successfully!",
+      data: user,
+    });
+  },
+);
+const getSingleUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    const user = await UserService.getMe(userId as string);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "User retrieved successfully!",
+      data: user,
+    });
+  },
+);
 export const UserController = {
   createUser,
   getAllUser,
   updateUser,
+  deleteUser,
+  getMe,
+  getSingleUser,
 };

@@ -34,7 +34,7 @@ const createUser = async (payload: IUser) => {
   return user;
 };
 ///get all users
-const getAlluser = async (query: IQuery) => {
+const getAllUser = async (query: IQuery) => {
   const builder = new QueryBuilder(User.find(), query)
     .filter()
     .search(["name", "email"])
@@ -89,8 +89,56 @@ const updateUser = async (
   });
   return newUpdateUser;
 };
+///delete user
+const deleteUser = async (userId: string, decodedToken: JwtPayload) => {
+  const isUserExist = await User.findById(userId);
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+  if (
+    decodedToken.role === ROLE.CUSTOMER ||
+    decodedToken.role === ROLE.SELLER
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
+  }
+  if (
+    isUserExist.role === ROLE.SUPER_ADMIN &&
+    decodedToken.role === ROLE.ADMIN
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
+  }
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { isDeleted: true },
+    { new: true },
+  );
+  return user;
+};
+//getMe
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+  return {
+    data: user,
+  };
+};
+///get single user
+const getSingleUser = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+  return {
+    data: user,
+  };
+};
 export const UserService = {
   createUser,
-  getAlluser,
+  getAllUser,
   updateUser,
+  deleteUser,
+  getMe,
+  getSingleUser,
 };
