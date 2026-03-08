@@ -7,11 +7,7 @@ import cors from "cors";
 import { router } from "./app/routes";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
-<<<<<<< HEAD
-=======
-import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
-import notFound from "./app/middlewares/notFound";
->>>>>>> d77f87a (Initial commit without secrets)
+
 const app = express();
 app.use(
   expressSession({
