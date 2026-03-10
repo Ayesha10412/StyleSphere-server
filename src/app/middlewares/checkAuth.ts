@@ -11,6 +11,7 @@ export const checkAuth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessToken = req.headers.authorization || req.cookies.accessToken;
+     // console.log(accessToken)
       if (!accessToken) {
         throw new AppError(httpStatus.BAD_GATEWAY, "No token received!");
       }
@@ -40,6 +41,8 @@ export const checkAuth =
       req.user = verifiedToken;
       next();
     } catch (error) {
+
       console.log(error);
+      next(error)
     }
   };

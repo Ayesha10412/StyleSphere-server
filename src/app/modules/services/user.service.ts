@@ -107,10 +107,9 @@ const deleteUser = async (userId: string, decodedToken: JwtPayload) => {
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
   }
-  const user = await User.findByIdAndUpdate(
+  const user = await User.findByIdAndDelete(
     userId,
     { isDeleted: true },
-    { new: true },
   );
   return user;
 };

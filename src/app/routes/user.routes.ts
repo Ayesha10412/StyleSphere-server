@@ -8,7 +8,7 @@ import { ROLE } from "../modules/interface/user.interface";
 const router = Router();
 router.get(
   "/",
-  //  checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN),
+  checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN),
   UserController.getAllUser,
 );
 router.get("/me", checkAuth(), UserController.getMe);
@@ -24,13 +24,13 @@ router.post(
 );
 router.patch(
   "/:id",
-  // checkAuth(...Object.values(ROLE)),
+   checkAuth(...Object.values(ROLE)),
   validateRequest(updateUserValidation),
   UserController.updateUser,
 );
 router.delete(
   "/:id",
-  // checkAuth(...Object.values(ROLE)),
+   checkAuth(...Object.values(ROLE)),
   UserController.deleteUser,
 );
 
