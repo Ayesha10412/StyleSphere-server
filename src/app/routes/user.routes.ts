@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validateRequest } from "../middlewares/validateRequest";
-import { createUserValidation } from "../modules/validation/user.validation";
+import { createUserValidation, updateUserValidation } from "../modules/validation/user.validation";
 import { UserController } from "../modules/controller/user.controller";
 import { checkAuth } from "../middlewares/checkAuth";
 import { ROLE } from "../modules/interface/user.interface";
@@ -24,9 +24,14 @@ router.post(
 );
 router.patch(
   "/:id",
-  validateRequest(createUserValidation),
-  checkAuth(...Object.values(ROLE)),
+  // checkAuth(...Object.values(ROLE)),
+  validateRequest(updateUserValidation),
   UserController.updateUser,
+);
+router.delete(
+  "/:id",
+  // checkAuth(...Object.values(ROLE)),
+  UserController.deleteUser,
 );
 
 export const userRoutes = router;

@@ -8,4 +8,5 @@ export const validateRequest =
     } catch (error) {
       next(error);
     }
+    next()
   };
