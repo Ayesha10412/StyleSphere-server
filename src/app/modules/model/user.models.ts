@@ -19,10 +19,12 @@ const authProviderSchema = new Schema<IAuthProviders>(
   },
   {
     timestamps: true,
-    versionKey: false,
+    versionKey: false,_id:false
   },
 );
+
 const userSchema = new Schema<IUser>(
+ 
   {
     name: {
       type: String,
