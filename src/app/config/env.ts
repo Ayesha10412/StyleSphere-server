@@ -13,6 +13,9 @@ interface EnvConfig {
   SUPER_ADMIN_EMAIL: string;
   SUPER_ADMIN_PASSWORD: string;
   BCRYPT_SALT_ROUND: number;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 const loadVariables = (): EnvConfig => {
   const requiredVariables: string[] = [
@@ -28,6 +31,9 @@ const loadVariables = (): EnvConfig => {
     "SUPER_ADMIN_EMAIL",
     "SUPER_ADMIN_PASSWORD",
     "BCRYPT_SALT_ROUND",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
   ];
   requiredVariables.forEach((key) => {
     if (!process.env[key]) {
@@ -47,6 +53,9 @@ const loadVariables = (): EnvConfig => {
     SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL as string,
     SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
     BCRYPT_SALT_ROUND: Number(process.env.BCRYPT_SALT_ROUND) as number,
+    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
+    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
   };
 };
 export const envVars = loadVariables();
