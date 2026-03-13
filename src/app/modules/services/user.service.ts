@@ -60,7 +60,7 @@ const updateUser = async (
   }
   if (payload.role) {
     if (
-      decodedToken.role === ROLE.CUSTOMER ||
+      decodedToken.role === ROLE.USER ||
       decodedToken.role === ROLE.SELLER
     ) {
       throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
@@ -71,7 +71,7 @@ const updateUser = async (
   }
   if (payload.isActive || payload.isDeleted || payload.isVerified) {
     if (
-      decodedToken.role === ROLE.CUSTOMER ||
+      decodedToken.role === ROLE.USER ||
       decodedToken.role === ROLE.SELLER
     ) {
       throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
@@ -96,7 +96,7 @@ const deleteUser = async (userId: string, decodedToken: JwtPayload) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
   if (
-    decodedToken.role === ROLE.CUSTOMER ||
+    decodedToken.role === ROLE.USER ||
     decodedToken.role === ROLE.SELLER
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");

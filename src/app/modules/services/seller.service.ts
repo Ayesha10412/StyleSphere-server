@@ -10,7 +10,7 @@ const applyForSeller = async (userId: string, payload: ISellerApplication) => {
   if (!isUserExist) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
-  if (isUserExist.role !== ROLE.CUSTOMER) {
+  if (isUserExist.role !== ROLE.USER) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Only normal users can apply for seller",
@@ -33,7 +33,7 @@ const applyForSeller = async (userId: string, payload: ISellerApplication) => {
 const getAllApplication = async () => {
   const applications = await Seller.find()
     .populate("user", "name email role")
-    .populate("reviewdBy", "name email");
+    .populate("reviewedBy", "name email");
   return applications;
 };
 const getMyApplication = async (userId: string) => {

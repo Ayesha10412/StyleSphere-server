@@ -9,10 +9,11 @@ const sellerSchema = new Schema<ISellerApplication>({
   },
   motivation: {
     type: String,
-    required: true,
+    // required: true,
   },
   cvLink: {
     type: String,
+    required:true
   },
   status: {
     type: String,

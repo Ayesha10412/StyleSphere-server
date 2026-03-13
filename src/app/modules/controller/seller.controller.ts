@@ -8,8 +8,13 @@ import httpStatus from "http-status-codes";
 const applyForSeller = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
-    const userId = user!._id;
-    const result = await SellerServices.applyForSeller(userId, req.body);
+    console.log("User:", user)
+    const userId = user!.userId;
+    const cvLink = (req.file as any)?.path;
+    const result = await SellerServices.applyForSeller(userId, {
+      ...req.body,
+      cvLink,
+    });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
@@ -33,7 +38,9 @@ const getAllApplication = catchAsync(
 const getMyApplication = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
-    const userId = user._id;
+    console.log("user:",user)
+    const userId = user.userId;
+    console.log("userId:",userId)
     const result = await SellerServices.getMyApplication(userId);
     sendResponse(res, {
       success: true,

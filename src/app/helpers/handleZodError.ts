@@ -3,13 +3,13 @@ import {
   TErrorSources,
   TGenericErrorResponse,
 } from "../interfaces/error.types";
+import { ZodError } from "zod";
 
 export const handleZodError = (
-  err: mongoose.Error.ValidationError,
+  err: ZodError,
 ): TGenericErrorResponse => {
   const errorSources: TErrorSources[] = [];
-  const errors = Object.values(err.errors);
-  errors.forEach((errorObject: any) => {
+  err.issues.forEach((errorObject: any) => {
     errorSources.push({
       path: errorObject.path,
       message: errorObject.message,

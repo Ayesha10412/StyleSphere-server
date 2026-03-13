@@ -7,6 +7,7 @@ import {
   updateSellerValidation,
 } from "../modules/validation/seller.validation";
 import { SellerController } from "../modules/controller/seller.controller";
+import { multerUpload } from "../config/multer.config";
 
 const router = Router();
 
@@ -15,7 +16,6 @@ router.get(
   checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN),
   SellerController.getAllApplication,
 );
-
 router.get(
   "/:id",
   checkAuth(ROLE.SELLER, ROLE.SUPER_ADMIN),
@@ -23,7 +23,8 @@ router.get(
 );
 router.post(
   "/",
-  checkAuth(ROLE.CUSTOMER),
+  checkAuth(ROLE.USER),
+  multerUpload.single("cvLink"),
   validateRequest(createSellerValidation),
   SellerController.applyForSeller,
 );
