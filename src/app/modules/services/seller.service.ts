@@ -64,6 +64,7 @@ const reviewApplication = async (
   }
   return application;
 };
+
 export const SellerServices = {
   applyForSeller,
   getAllApplication,
