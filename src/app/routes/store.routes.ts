@@ -7,7 +7,12 @@ import { StoreController } from "../modules/controller/store.controller";
 import { multerUpload } from "../config/multer.config";
 
 const router = Router();
-
+router.get(
+  "/",
+  checkAuth(ROLE.SUPER_ADMIN, ROLE.ADMIN),
+  StoreController.getAllStore,
+);
+router.get("/:id", checkAuth(ROLE.SELLER), StoreController.getMyStore);
 router.post(
   "/",
   checkAuth(ROLE.SELLER),
