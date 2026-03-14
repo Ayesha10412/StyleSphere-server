@@ -2,7 +2,10 @@ import { Router } from "express";
 import { checkAuth } from "../middlewares/checkAuth";
 import { ROLE } from "../modules/interface/user.interface";
 import { validateRequest } from "../middlewares/validateRequest";
-import { createStoreValidation } from "../modules/validation/store.validation";
+import {
+  createStoreValidation,
+  updateStoreValidation,
+} from "../modules/validation/store.validation";
 import { StoreController } from "../modules/controller/store.controller";
 import { multerUpload } from "../config/multer.config";
 
@@ -19,6 +22,12 @@ router.post(
   multerUpload.single("banner"),
   validateRequest(createStoreValidation),
   StoreController.createStore,
+);
+router.patch(
+  "/:id",
+  checkAuth(ROLE.SELLER, ROLE.ADMIN),
+  validateRequest(updateStoreValidation),
+  StoreController.updateStore,
 );
 
 export const storeRoutes = router;

@@ -16,7 +16,7 @@ const createStore = catchAsync(
     });
     sendResponse(res, {
       success: true,
-      statusCode: httpStatus.OK,
+      statusCode: httpStatus.CREATED,
       message: "Store created successfully!",
       data: store,
     });
@@ -48,4 +48,24 @@ const getMyStore = catchAsync(
     });
   },
 );
-export const StoreController = { createStore, getAllStore, getMyStore };
+//update store
+const updateStore = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as JwtPayload;
+    const userId = user.userId;
+    const storeId = user.storeId;
+    const store = await StoreServices.updateStore( storeId,userId, req.body);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Updated store successfully",
+      data: store,
+    });
+  },
+);
+export const StoreController = {
+  createStore,
+  getAllStore,
+  getMyStore,
+  updateStore,
+};
