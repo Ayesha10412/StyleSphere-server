@@ -15,17 +15,18 @@ router.get(
   checkAuth(ROLE.SUPER_ADMIN, ROLE.ADMIN),
   StoreController.getAllStore,
 );
-router.get("/:id", checkAuth(ROLE.SELLER), StoreController.getMyStore);
+router.get("/me", checkAuth(ROLE.SELLER), StoreController.getMyStore);
 router.post(
   "/",
   checkAuth(ROLE.SELLER),
-  multerUpload.single("banner"),
+  multerUpload.single("storeBanner"),
   validateRequest(createStoreValidation),
   StoreController.createStore,
 );
 router.patch(
   "/:id",
   checkAuth(ROLE.SELLER, ROLE.ADMIN),
+  multerUpload.single("storeBanner"),
   validateRequest(updateStoreValidation),
   StoreController.updateStore,
 );

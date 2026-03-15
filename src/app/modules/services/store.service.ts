@@ -39,7 +39,8 @@ const getAllStore = async (query: IQuery) => {
 };
 //get my store
 const getMyStore = async (userId: string) => {
-  const seller = await Seller.findOne({ owner: userId });
+  const seller = await Seller.findOne({user:userId} );
+  console.log("From service:", seller);
   if (!seller) {
     throw new AppError(httpStatus.NOT_FOUND, "Seller not found!");
   }
