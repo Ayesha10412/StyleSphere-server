@@ -6,6 +6,7 @@ import { createCategoryValidation } from "../modules/validation/category.validat
 import { CategoryController } from "../modules/controller/category.controller";
 
 const router = Router();
+router.get("/", CategoryController.getAllCategory);
 router.post(
   "/",
   checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.SELLER),

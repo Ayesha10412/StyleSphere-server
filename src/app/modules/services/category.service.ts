@@ -7,17 +7,17 @@ import { Category } from "../model/categories.model";
 import { User } from "../model/user.models";
 import httpStatus from "http-status-codes";
 const createCategory = async (userId: string, payload: ICategory) => {
-  const user = await User.findById(userId);
+  const users = await User.findById(userId);
   if (
-    (!user && user!.role !== ROLE.ADMIN) ||
-    (user!.role !== ROLE.SUPER_ADMIN && user!.role !== ROLE.SELLER)
+    (!users && users!.role !== ROLE.ADMIN) ||
+    (users!.role !== ROLE.SUPER_ADMIN && users!.role !== ROLE.SELLER)
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "You're not permitted to view this route.",
     );
   }
-  const category = await Category.create(userId, payload);
+  const category = await Category.create({ users: userId, ...payload });
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category is not found.");
   }
@@ -34,5 +34,11 @@ const getAllCategory = async (query: IQuery) => {
   const category = await builder.build();
   const meta = await builder.getMeta();
   return { data: category, meta };
+};
+//get category by id
+const categoryDetails = async (categoryId: string) => {
+  const category = await Category.findById(categoryId);
+  console.log(category);
+  return category;
 };
 export const CategoryService = { createCategory, getAllCategory };
