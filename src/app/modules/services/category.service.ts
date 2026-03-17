@@ -96,10 +96,10 @@ const deleteCategory = async (categoryId: string, userId: string) => {
       "You're not allowed to delete this category.",
     );
   }
-  const category = await Category.findByIdAndDelete({ categoryId, userId });
-  if (category) {
+  const category = await Category.findOneAndDelete({ _id:categoryId, user:userId });
+  if (!category) {
     throw new AppError(
-      httpStatus.EXPECTATION_FAILED,
+      httpStatus.NOT_FOUND,
       "Category is not deleted.",
     );
   }
@@ -109,6 +109,5 @@ export const CategoryService = {
   createCategory,
   getAllCategory,
   categoryDetails,
-  updateCategory,
-  deleteCategory,
+  updateCategory,deleteCategory
 };

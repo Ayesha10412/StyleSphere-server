@@ -71,6 +71,7 @@ const deleteCategory = catchAsync(
     const user = req.user as JwtPayload;
     const userId = user.userId;
     const categoryId = req.params.id as string;
+    console.log("categoryId:", categoryId);
     const result = await CategoryService.deleteCategory(categoryId, userId);
     sendResponse(res, {
       success: true,
