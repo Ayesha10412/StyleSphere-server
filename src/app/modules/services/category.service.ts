@@ -50,8 +50,65 @@ const categoryDetails = async (categoryId: string) => {
   }
   return category;
 };
+//update category
+const updateCategory = async (
+  categoryId: string,
+  userId: string,
+  payload: ICategory,
+) => {
+  const category = await Category.findOne({ _id: categoryId });
+  if (!category) {
+    throw new AppError(httpStatus.NOT_FOUND, "Category not found!");
+  }
+  const user = await User.findById(userId);
+  if ((!user && user!.role !== ROLE.ADMIN) || user!.role !== ROLE.SELLER) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You're not permitted to view route.",
+    );
+  }
+  let updateData: ICategory = { ...payload };
+  if (payload.name) {
+    updateData.slug = slugify(payload.name, { lower: true });
+  }
+  const result = await Category.findByIdAndUpdate(category, updateData, {
+    new: true,
+    runValidators: true,
+  });
+  if (!result) {
+    throw new AppError(httpStatus.NOT_MODIFIED, "Category update failed!");
+  }
+  return result;
+};
+//delete category
+const deleteCategory = async (categoryId: string, userId: string) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found.");
+  }
+  if (
+    user.role !== ROLE.ADMIN &&
+    user.role !== ROLE.SUPER_ADMIN &&
+    user.role !== ROLE.SELLER
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You're not allowed to delete this category.",
+    );
+  }
+  const category = await Category.findByIdAndDelete({ categoryId, userId });
+  if (category) {
+    throw new AppError(
+      httpStatus.EXPECTATION_FAILED,
+      "Category is not deleted.",
+    );
+  }
+  return category;
+};
 export const CategoryService = {
   createCategory,
   getAllCategory,
   categoryDetails,
+  updateCategory,
+  deleteCategory,
 };

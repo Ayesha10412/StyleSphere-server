@@ -6,6 +6,7 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
 import { Category } from "../model/categories.model";
+import { User } from "../model/user.models";
 const createCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
@@ -34,8 +35,8 @@ const getAllCategory = catchAsync(
 //categoryDetails
 const categoryDetails = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const id=req.params.id as string
-    console.log("id:",id)
+    const id = req.params.id as string;
+    console.log("id:", id);
     const category = await CategoryService.categoryDetails(id);
     sendResponse(res, {
       success: true,
@@ -45,8 +46,44 @@ const categoryDetails = catchAsync(
     });
   },
 );
+//update category
+const updateCategory = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as JwtPayload;
+    const userId = user.userId;
+    const categoryId = req.params.id as string;
+    const category = await CategoryService.updateCategory(
+      categoryId,
+      userId,
+      req.body,
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Category updated retrieved successfully.",
+      data: category,
+    });
+  },
+);
+//delete category
+const deleteCategory = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as JwtPayload;
+    const userId = user.userId;
+    const categoryId = req.params.id as string;
+    const result = await CategoryService.deleteCategory(categoryId, userId);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Category is deleted successfully.",
+      data: result,
+    });
+  },
+);
 export const CategoryController = {
   createCategory,
   getAllCategory,
   categoryDetails,
+  updateCategory,
+  deleteCategory,
 };
