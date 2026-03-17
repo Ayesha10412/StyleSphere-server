@@ -43,8 +43,15 @@ const getAllCategory = async (query: IQuery) => {
 };
 //get category by id
 const categoryDetails = async (categoryId: string) => {
-  const category = await Category.findById(categoryId);
+  const category = await Category.findOne({ _id: categoryId });
   console.log(category);
+  if (!category) {
+    throw new AppError(httpStatus.NOT_FOUND, "Category not found!");
+  }
   return category;
 };
-export const CategoryService = { createCategory, getAllCategory };
+export const CategoryService = {
+  createCategory,
+  getAllCategory,
+  categoryDetails,
+};

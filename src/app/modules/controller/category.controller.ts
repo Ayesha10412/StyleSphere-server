@@ -5,10 +5,11 @@ import { CategoryService } from "../services/category.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
+import { Category } from "../model/categories.model";
 const createCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
-    console.log(user)
+    console.log(user);
     const userId = user.userId;
     const category = await CategoryService.createCategory(userId, req.body);
     sendResponse(res, {
@@ -30,7 +31,22 @@ const getAllCategory = catchAsync(
     });
   },
 );
+//categoryDetails
+const categoryDetails = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const id=req.params.id as string
+    console.log("id:",id)
+    const category = await CategoryService.categoryDetails(id);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Category details retrieved successfully.",
+      data: category,
+    });
+  },
+);
 export const CategoryController = {
   createCategory,
   getAllCategory,
+  categoryDetails,
 };
