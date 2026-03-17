@@ -8,6 +8,7 @@ import { IQuery } from "../../interfaces/error.types";
 const createCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
+    console.log(user)
     const userId = user.userId;
     const category = await CategoryService.createCategory(userId, req.body);
     sendResponse(res, {

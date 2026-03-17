@@ -6,18 +6,24 @@ import { ROLE } from "../interface/user.interface";
 import { Category } from "../model/categories.model";
 import { User } from "../model/user.models";
 import httpStatus from "http-status-codes";
+import slugify from "slugify";
 const createCategory = async (userId: string, payload: ICategory) => {
-  const users = await User.findById(userId);
+  const user = await User.findById(userId);
   if (
-    (!users && users!.role !== ROLE.ADMIN) ||
-    (users!.role !== ROLE.SUPER_ADMIN && users!.role !== ROLE.SELLER)
+    (!user && user!.role !== ROLE.ADMIN) ||
+    (user!.role !== ROLE.SUPER_ADMIN && user!.role !== ROLE.SELLER)
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "You're not permitted to view this route.",
     );
   }
-  const category = await Category.create({ users: userId, ...payload });
+  const slug = slugify(payload.name, { lower: true });
+  const category = await Category.create({
+    ...{ user: user },
+    ...payload,
+    slug: slug,
+  });
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category is not found.");
   }

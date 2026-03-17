@@ -23,7 +23,7 @@ const moduleRoutes = [
     route: storeRoutes,
   },
   {
-    path: "category",
+    path: "/category",
     route: categoryRoutes,
   },
 ];
