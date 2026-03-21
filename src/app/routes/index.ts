@@ -4,6 +4,7 @@ import { authRoutes } from "./auth.routes";
 import { sellerRoutes } from "./seller.routes";
 import { storeRoutes } from "./store.routes";
 import { categoryRoutes } from "./category.routes";
+import { productRoutes } from "./product.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -25,6 +26,10 @@ const moduleRoutes = [
   {
     path: "/category",
     route: categoryRoutes,
+  },
+  {
+    path: "/product",
+    route: productRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {

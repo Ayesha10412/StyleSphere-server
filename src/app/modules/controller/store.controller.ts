@@ -6,15 +6,20 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
 import { Store } from "../model/store.model";
+import AppError from "../../errorHelpers/appError";
 const createStore = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req.user as JwtPayload;
     const userId = user.userId;
     const storeBanner = (req.file as any)?.path;
+    if (!req.file) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Store Banner is required!");
+    }
     const payload = {
       ...req.body,
       ...(storeBanner && { storeBanner }),
     };
+    console.log("Payload:", payload);
     const store = await StoreServices.createStore(userId, payload);
     sendResponse(res, {
       success: true,
