@@ -34,4 +34,5 @@ const createProduct = catchAsync(
     });
   },
 );
+
 export const ProductController = { createProduct };

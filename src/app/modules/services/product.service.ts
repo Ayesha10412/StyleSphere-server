@@ -16,28 +16,28 @@ const createProduct = async (userId: string, payload: IProduct) => {
   if (!store) {
     throw new AppError(httpStatus.NOT_FOUND, "Store not found.");
   }
-  //   if (store.owner.toString() !== sellerId) {
-  //     throw new AppError(httpStatus.BAD_REQUEST, "Not your store!");
-  //   }
+  // if (store.owner.toString() !== sellerId) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, "Not your store!");
+  // }
   const categories = await Category.find({ user: userId });
-  console.log("categories:", categories);
-  console.log(
-    "categories IDs:",
-    categories.map((c) => c._id.toString()),
-  );
+  //   console.log("categories:", categories);
+  //   console.log(
+  //     "categories IDs:",
+  //     categories.map((c) => c._id.toString()),
+  //   );
   const category = categories.find(
-    (c) => c._id.toString() === payload.category,
+    (c) => c._id.toString() === (payload.category as unknown as string),
   );
-  console.log("Category:", category);
+  //   console.log("Category:", category);
 
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category not found.");
   }
   const product = await Product.create({
+    ...payload,
     seller: seller._id,
     store: store._id,
     category: category._id,
-    ...payload,
   });
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
