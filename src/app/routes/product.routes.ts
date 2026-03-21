@@ -8,6 +8,7 @@ import { checkAuth } from "../middlewares/checkAuth";
 import { ROLE } from "../modules/interface/user.interface";
 
 const router = Router();
+router.get("/", ProductController.getAllProduct);
 router.post(
   "/",
   checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.SELLER),
@@ -17,3 +18,6 @@ router.post(
   ProductController.createProduct,
 );
 export const productRoutes = router;
+
+// 1. user will search with any case
+// 2. user will search with anything related field.

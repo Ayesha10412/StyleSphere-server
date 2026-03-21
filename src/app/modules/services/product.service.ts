@@ -5,6 +5,8 @@ import httpStatus from "http-status-codes";
 import { Store } from "../model/store.model";
 import { Product } from "../model/product.model";
 import { User } from "../model/user.models";
+import { IQuery } from "../../interfaces/error.types";
+import { QueryBuilder } from "../../utils/queryBuilder";
 const createProduct = async (userId: string, payload: IProduct) => {
   const seller = await User.findById(userId);
   console.log("Seller:", seller);
@@ -44,4 +46,16 @@ const createProduct = async (userId: string, payload: IProduct) => {
   }
   return product;
 };
-export const ProductService = { createProduct };
+//get all product
+const getAllProduct = async (query: IQuery) => {
+  const builder = new QueryBuilder(Product.find().lean(), query)
+    .fields()
+    .sort()
+    .paginate()
+    .search(["title price variants.size variants.color"])
+    .filter();
+  const product = await builder.build();
+  const meta = await builder.getMeta();
+  return { data: product, meta };
+};
+export const ProductService = { createProduct, getAllProduct };
