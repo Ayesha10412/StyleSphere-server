@@ -26,7 +26,8 @@ export class QueryBuilder<T> {
           [field]: { $regex: searchTerm, $options: "i" },
         })),
       };
-      this.modelQuery = this.modelQuery.find({ $and: [searchQuery] }); // keeps previous filters
+      // this.modelQuery = this.modelQuery.find({ $and: [searchQuery] }); // keeps previous filters
+    this.modelQuery = this.modelQuery.find(searchQuery);
     }
     return this;
   }

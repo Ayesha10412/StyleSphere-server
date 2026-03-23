@@ -52,7 +52,8 @@ const getAllProduct = async (query: IQuery) => {
     .fields()
     .sort()
     .paginate()
-    .search(["title price variants.size variants.color"])
+    // .search(["title price variants.size variants.color"])
+    .search(["title",  "variants.size", "variants.color"])
     .filter();
   const product = await builder.build();
   const meta = await builder.getMeta();
