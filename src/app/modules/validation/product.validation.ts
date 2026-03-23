@@ -21,7 +21,7 @@ export const updateProductValidation = z.object({
   description: z.string().optional(),
   price: z.number().optional(),
   discountPrice: z.number().optional(),
-  //images: z.string().optional(),
+  images: z.array(z.string()).optional(),
   variants: z.array(productVariantValidation).optional(),
   ratingsAverage: z.number().optional(),
   ratingsCount: z.number().optional(),

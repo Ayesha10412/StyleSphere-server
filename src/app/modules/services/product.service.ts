@@ -7,6 +7,7 @@ import { Product } from "../model/product.model";
 import { User } from "../model/user.models";
 import { IQuery } from "../../interfaces/error.types";
 import { QueryBuilder } from "../../utils/queryBuilder";
+import { ROLE } from "../interface/user.interface";
 const createProduct = async (userId: string, payload: IProduct) => {
   const seller = await User.findById(userId);
   console.log("Seller:", seller);
@@ -53,10 +54,56 @@ const getAllProduct = async (query: IQuery) => {
     .sort()
     .paginate()
     // .search(["title price variants.size variants.color"])
-    .search(["title",  "variants.size", "variants.color"])
+    .search(["title", "variants.size", "variants.color"])
     .filter();
   const product = await builder.build();
   const meta = await builder.getMeta();
   return { data: product, meta };
 };
-export const ProductService = { createProduct, getAllProduct };
+///get product by id
+const productDetails = async (productId: string) => {
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
+  }
+  return product;
+};
+//update product
+const updateProduct = async (
+  productId: string,
+  userId: string,
+  payload: IProduct,
+) => {
+  const user = await User.findById(userId);
+  //console.log("User from service:", user);
+  if (
+    (!user || (user!.role !== ROLE.ADMIN && user!.role !== ROLE.SUPER_ADMIN)) &&
+    user!.role !== ROLE.SELLER
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You're not permitted to view this route.",
+    );
+  }
+  const { images, ...rest } = payload;
+  let updateData: any = { ...rest };
+  if (images && images.length > 0) {
+    updateData.$push = {
+      images: { $each: images },
+    };
+  }
+  const product = await Product.findByIdAndUpdate(productId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
+  }
+  return product;
+};
+export const ProductService = {
+  createProduct,
+  getAllProduct,
+  productDetails,
+  updateProduct,
+};

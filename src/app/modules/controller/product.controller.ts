@@ -48,5 +48,49 @@ const getAllProduct = catchAsync(
     });
   },
 );
+//get product details
+const productDetails = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.params.id as string;
+    const product = await ProductService.productDetails(productId);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Product details retrieved successfully.",
+      data: product,
+    });
+  },
+);
+//update product
+const updateProduct = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as JwtPayload;
+    const userId = user.userId;
+    const productId = req.params.id as string;
+    const files = (req.files as any) || [];
+    const imageUrls = files.map((file: any) => file.path);
+    const payload = {
+      ...req.body,
+      ...(imageUrls.length > 0 && { images: imageUrls }),
+    };
+    console.log(payload);
 
-export const ProductController = { createProduct, getAllProduct };
+    const product = await ProductService.updateProduct(
+      productId,
+      userId,
+      payload,
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Product updated successfully.",
+      data: product,
+    });
+  },
+);
+export const ProductController = {
+  createProduct,
+  getAllProduct,
+  productDetails,
+  updateProduct,
+};
