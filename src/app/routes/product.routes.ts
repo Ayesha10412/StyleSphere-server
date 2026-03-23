@@ -29,6 +29,11 @@ router.patch(
   validateRequest(updateProductValidation),
   ProductController.updateProduct,
 );
+router.delete(
+  "/:id",
+  checkAuth(ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.SELLER),
+  ProductController.deleteProduct,
+);
 export const productRoutes = router;
 
 // 1. user will search with any case

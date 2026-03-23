@@ -101,9 +101,21 @@ const updateProduct = async (
   }
   return product;
 };
+//delete product
+const deleteProduct = async (productId: string, userId: string) => {
+  const product = await Product.findByIdAndDelete(productId, {
+    new: true,
+    runValidators: true,
+  });
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
+  }
+  return product;
+};
 export const ProductService = {
   createProduct,
   getAllProduct,
   productDetails,
   updateProduct,
+  deleteProduct,
 };
