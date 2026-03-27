@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-export interface ICartItem {
+ interface ICartItem {
   product: Types.ObjectId;
   variant: {
     size: string;
