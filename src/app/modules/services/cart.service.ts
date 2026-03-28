@@ -113,5 +113,83 @@ const addToCart = async (userId: string, payload: ICart) => {
 
   return cart;
 };
+const updateCartItem = async (
+  userId: string,
+  productId: string,
+  quantity: number,
+  variant?: { size?: string; color?: string },
+) => {
+  const cart = await Cart.findOne({ user: userId });
+  if (!cart) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cart not found!");
+  }
+  const item = cart.items.find(
+    (i) =>
+      i.product.toString() === productId &&
+      i.variant?.size === variant &&
+      i.variant?.color === variant,
+  );
+  if (!item) {
+    throw new AppError(httpStatus.NOT_FOUND, "Item not found.");
+  }
+  if (quantity <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid quantity.");
+  }
+  const product = await Product.findById(productId);
+  if (!product || product.variants[0].stock < quantity.toString()) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
+  }
+  item.quantity = quantity;
+  //recalculate price
+  let totalPrice = 0;
+  for (const i of cart.items) {
+    const p = await Product.findById(i.product);
+    totalPrice += p!.price * i.quantity;
+  }
+  cart.totalPrice = totalPrice;
+  await cart.save();
+  return cart;
+};
+//remove all items from cart
+const removeCartItem = async (
+  userId: string,
+  productId: string,
+  variant?: { size?: string; color?: string },
+) => {
+  const cart = await Cart.findOne({ user: userId });
+  if (!cart) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cart not found!");
+  }
+  cart.items = cart.items.filter(
+    (i) =>
+      !(
+        i.product.toString() === productId &&
+        i.variant?.size === variant?.size &&
+        i.variant?.color === variant?.color
+      ),
+  );
+  //recalculate price
+  let totalPrice = 0;
+  for (const i of cart.items) {
+    const p = await Product.findById(i.product);
+    totalPrice += p!.price * i.quantity;
+  }
+  cart.totalPrice = totalPrice;
+  await cart.save();
+  return cart;
+};
+//clear cart
+const clearCart = async (userId: string) => {
+  const cart = await Cart.findOne({ user: userId });
 
-export const CartServices = { addToCart };
+  if (!cart) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cart not found");
+  }
+  cart.items = [];
+  cart.totalPrice = 0;
+
+  await cart.save();
+
+  return cart;
+};
+export const CartServices = { addToCart, updateCartItem, removeCartItem , clearCart};

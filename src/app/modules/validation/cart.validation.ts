@@ -12,7 +12,7 @@ import z from "zod";
 });
 export const createCartValidation = z.object({
   items: z.array(cartIemValidation).min(1, "Cart can not be empty."),
-  totalPrice: z.number().min(0),
+  totalPrice: z.number().min(0).optional(),
 });
 export const updateCartValidation = z.object({
   items: z.array(cartIemValidation).min(1, "Cart can not be empty.").optional(),
