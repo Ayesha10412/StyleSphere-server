@@ -7,4 +7,4 @@ declare global {
     }
   }
 }
-
+export const commissionRate = 0.1; // 10% commission

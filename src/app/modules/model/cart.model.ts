@@ -8,6 +8,7 @@ const cartItemSchema = new Schema<ICartItem>(
       size: { type: String, required: true },
       color: { type: String, required: true },
     },
+    price: { type: Number, required: true, min: 0 },
     quantity: { type: Number, required: true, min: 1 },
   },
   { _id: false },

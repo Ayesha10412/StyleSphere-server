@@ -1,13 +1,14 @@
 import z from "zod";
 
- const variantValidation = z.object({
+const variantValidation = z.object({
   size: z.string().optional(),
   color: z.string().optional(),
 });
 
- const cartIemValidation = z.object({
-  product:z.string(),
+const cartIemValidation = z.object({
+  product: z.string(),
   variant: variantValidation,
+  price: z.number().min(0, "Price must be a non-negative number."),
   quantity: z.number().min(1, "Quantity must be at least 1."),
 });
 export const createCartValidation = z.object({
