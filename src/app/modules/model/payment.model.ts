@@ -1,13 +1,14 @@
 import { model, Schema } from "mongoose";
 import { IPayment } from "../interface/payment.interface";
 
-export enum PAYMENT_STATUS {
+ enum PAYMENT_STATUS {
   PENDING = "pending",
   PAID = "paid",
   FAILED = "failed",
   UNPAID = "unpaid",
   CANCELLED = "cancelled",
   REFUNDED = "refunded",
+  COMPLETED = "completed",
 }
 const paymentSchema = new Schema<IPayment>({
   order: {
@@ -34,5 +35,5 @@ const paymentSchema = new Schema<IPayment>({
   paymentGatewayData: {
     type: Schema.Types.Mixed,
   },
-});
+},{timestamps: true, versionKey: false,});
 export const Payment = model<IPayment>("Payment", paymentSchema);

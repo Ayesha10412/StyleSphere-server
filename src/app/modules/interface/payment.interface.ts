@@ -7,6 +7,7 @@ export enum PAYMENT_STATUS {
   UNPAID = "unpaid",
   CANCELLED = "cancelled",
   REFUNDED = "refunded",
+  COMPLETED = "completed",
 }
 export interface IPayment {
   order: Types.ObjectId;

@@ -39,4 +39,5 @@ export interface IOrder {
     changedBy: Types.ObjectId;
   }[];
   shippingAddress: string;
+  
 }

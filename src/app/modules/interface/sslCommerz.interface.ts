@@ -3,6 +3,12 @@ export interface ISSLCommerz {
   transactionId: string;
   email: string;
   name: string;
-  phoneNumber: string;
+  phone: string;
   address: string;
+}
+export interface ISSLCommerzResponse {
+  status: string;
+  GatewayPageURL: string;
+  failedreason?: string;
+  sessionkey?: string;
 }

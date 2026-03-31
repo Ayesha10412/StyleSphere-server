@@ -136,6 +136,7 @@ const orderSchema = new Schema<IOrder>(
       type: String,
       required: true,
     },
+    
   },
   {
     timestamps: true,

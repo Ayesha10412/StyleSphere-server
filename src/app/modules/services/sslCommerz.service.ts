@@ -1,10 +1,15 @@
 import axios from "axios";
 import httpStatus from "http-status-codes";
 import { envVars } from "../../config/env";
-import { ISSLCommerz } from "../interface/sslCommerz.interface";
+import {
+  ISSLCommerz,
+  ISSLCommerzResponse,
+} from "../interface/sslCommerz.interface";
 import AppError from "../../errorHelpers/appError";
 
-const sslPaymentInit = async (payload: ISSLCommerz) => {
+const sslPaymentInit = async (
+  payload: ISSLCommerz,
+): Promise<ISSLCommerzResponse> => {
   try {
     const data = {
       store_id: envVars.SSL_STORE_ID,
@@ -28,7 +33,7 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
       cus_state: "Dhaka",
       cus_postcode: "1000",
       cus_country: "Bangladesh",
-      cus_phone: payload.phoneNumber,
+      cus_phone: payload.phone,
       cus_fax: "01711111111",
       ship_name: "N/A",
       ship_add1: "N/A",
@@ -39,12 +44,13 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
       ship_country: "N/A",
     };
 
-    const response = await axios({
-      method: "POST",
-      url: envVars.SSL_PAYMENT_API as string,
-      data: data,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
+    const response = await axios.post<ISSLCommerzResponse>(
+      envVars.SSL_PAYMENT_API as string,
+      data,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    );
 
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
