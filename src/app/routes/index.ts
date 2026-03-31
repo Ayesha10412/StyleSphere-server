@@ -6,6 +6,7 @@ import { storeRoutes } from "./store.routes";
 import { categoryRoutes } from "./category.routes";
 import { productRoutes } from "./product.routes";
 import { cartRoutes } from "./cart.routes";
+import { PaymentRoutes } from "./payment.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -35,6 +36,10 @@ const moduleRoutes = [
   {
     path: "/cart",
     route: cartRoutes,
+  },
+  {
+    path: "/payment",
+    route: PaymentRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {
