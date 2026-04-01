@@ -7,6 +7,7 @@ import { categoryRoutes } from "./category.routes";
 import { productRoutes } from "./product.routes";
 import { cartRoutes } from "./cart.routes";
 import { PaymentRoutes } from "./payment.routes";
+import { wishlistRoutes } from "./wishlist.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -40,6 +41,10 @@ const moduleRoutes = [
   {
     path: "/payment",
     route: PaymentRoutes,
+  },
+  {
+    path: "/wishlist",
+    route: wishlistRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {
