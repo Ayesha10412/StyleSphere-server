@@ -8,6 +8,7 @@ import { productRoutes } from "./product.routes";
 import { cartRoutes } from "./cart.routes";
 import { PaymentRoutes } from "./payment.routes";
 import { wishlistRoutes } from "./wishlist.routes";
+import { reviewRoutes } from "./review.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -45,6 +46,10 @@ const moduleRoutes = [
   {
     path: "/wishlist",
     route: wishlistRoutes,
+  },
+  {
+    path: "/review",
+    route: reviewRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {
