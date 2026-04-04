@@ -5,6 +5,20 @@ import { Payment } from "../model/payment.model";
 import httpStatus from "http-status-codes";
 import { SSLService } from "./sslCommerz.service";
 import { PAYMENT_STATUS } from "../interface/payment.interface";
+import { IOrder } from "../interface/order.interface";
+import crypto from "crypto";
+const createPayment = async (order: IOrder) => {
+  const transactionId = `TXN-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+
+  const payment = await Payment.create({
+    order: order._id,
+    amount: order.totalAmount,
+    transactionId,
+    status: PAYMENT_STATUS.PENDING,
+  });
+
+  return payment;
+};
 const initPayment = async (
   orderId: string,
 ): Promise<{ paymentUrl: string }> => {
@@ -120,4 +134,5 @@ export const PaymentService = {
   successPayment,
   failedPayment,
   cancelledPayment,
+  createPayment,
 };

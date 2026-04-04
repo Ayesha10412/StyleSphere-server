@@ -3,11 +3,13 @@ import expressSession from "express-session";
 import { envVars } from "./app/config/env";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import http from "http";
 import { router } from "./app/routes";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 import  "./app/config/passport";
 import passport from "passport";
+import { initSocket } from "./app/utils/socket";
 
 const app = express();
 app.use(
@@ -30,6 +32,7 @@ app.use(
   }),
 );
 app.use("/api",router)
+initSocket(http.createServer(app))
 app.get("/",(req:Request,res:Response)=>{
     res.status(200).json({
         message:"Welcome to StyleSphere Backend"

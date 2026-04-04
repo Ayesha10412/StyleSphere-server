@@ -1,10 +1,10 @@
-import { platform } from "node:os";
 import AppError from "../../errorHelpers/appError";
 import { IOrder } from "../interface/order.interface";
 import { Cart } from "../model/cart.model";
 import httpSttaus from "http-status-codes";
 import { commissionRate } from "../../interfaces";
 import { Order } from "../model/order.model";
+import { PaymentService } from "./payment.service";
 const createOrder = async (userId: string, payload: IOrder) => {
   const cart = await Cart.findOne({ user: userId });
   if (!cart || cart.items.length === 0) {
@@ -23,6 +23,11 @@ const createOrder = async (userId: string, payload: IOrder) => {
   const sellerAmount = totalAmount - platformCommission;
   const order = await Order.create({
     ...payload,
+    platformCommission,
+    user: userId,
+    items: orderItems,
+    totalAmount,
+    sellerAmount,
   });
   if (!order) {
     throw new AppError(
@@ -30,7 +35,9 @@ const createOrder = async (userId: string, payload: IOrder) => {
       "Failed to create order. Please try again.",
     );
   }
- // const payment = await createPayment(order);
+  const payment = await PaymentService.createPayment(order);
+  cart.items = [];
+  await cart.save();
   return { order };
 };
 export const OrderService = {
