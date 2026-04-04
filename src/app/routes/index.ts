@@ -10,6 +10,7 @@ import { PaymentRoutes } from "./payment.routes";
 import { wishlistRoutes } from "./wishlist.routes";
 import { reviewRoutes } from "./review.routes";
 import { notificationRoutes } from "./notification.routes";
+import { orderRoutes } from "./order.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -52,10 +53,13 @@ const moduleRoutes = [
     path: "/review",
     route: reviewRoutes,
   },
-
   {
     path: "/notification",
     route: notificationRoutes,
+  },
+  {
+    path: "/order",
+    route: orderRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {
