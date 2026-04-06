@@ -7,6 +7,7 @@ import { Order } from "../model/order.model";
 import { PaymentService } from "./payment.service";
 import { IQuery } from "../../interfaces/error.types";
 import { QueryBuilder } from "../../utils/queryBuilder";
+import { Coupon } from "../model/coupon.model";
 const createOrder = async (userId: string, payload: IOrder) => {
   const cart = await Cart.findOne({ user: userId });
   if (!cart || cart.items.length === 0) {
@@ -21,8 +22,35 @@ const createOrder = async (userId: string, payload: IOrder) => {
     totalAmount += subTotal;
     return { ...item, subTotal };
   });
-  const platformCommission = totalAmount * commissionRate;
-  const sellerAmount = totalAmount - platformCommission;
+  let discount = 0;
+  let appliedCoupon = null;
+  if (payload.coupon) {
+    const coupon = await Coupon.findOne({ code: payload.coupon });
+    if (!coupon || !coupon.isActive) {
+      throw new AppError(httpStatus.NOT_FOUND, "Invalid coupon");
+    }
+    if (coupon.expiryDate < new Date()) {
+      throw new AppError(httpStatus.FORBIDDEN, "Coupon expired!");
+    }
+    if (coupon.usageLimit <= (coupon.usedCount ?? 0)) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Coupon usage limit reached");
+    }
+    if (coupon.minPurchase && totalAmount < coupon.minPurchase) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Minimum purchase not met!");
+    }
+    if (coupon.discountType === "percentage") {
+      discount = (totalAmount * coupon.value) / 100;
+    } else {
+      discount = coupon.value;
+    }
+    if (totalAmount < discount) {
+      discount = totalAmount;
+    }
+    appliedCoupon = coupon;
+  }
+  const finalAmount = totalAmount - discount;
+  const platformCommission = finalAmount * commissionRate;
+  const sellerAmount = finalAmount - platformCommission;
   const order = await Order.create({
     ...payload,
     platformCommission,
@@ -30,6 +58,8 @@ const createOrder = async (userId: string, payload: IOrder) => {
     items: orderItems,
     totalAmount,
     sellerAmount,
+    finalAmount,
+    discount,
   });
   if (!order) {
     throw new AppError(
@@ -65,6 +95,7 @@ const orderDetails = async (orderId: string) => {
   }
   return order;
 };
+
 export const OrderService = {
   createOrder,
   allOrder,
