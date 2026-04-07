@@ -2,8 +2,8 @@ import { Coupon } from "../modules/model/coupon.model";
 
 const couponCode = (length = 6): string => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let code = "c";
-  for (let i = 0; i <= length; i++) {
+  let code = "C";
+  for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * chars.length);
     code += chars[randomIndex];
   }
