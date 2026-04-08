@@ -43,7 +43,37 @@ const couponDetails = async (code: string) => {
   }
   return { couponCode };
 };
+const updateCoupon = async (code: string, payload: ICoupon) => {
+  const couponCode = await Coupon.findOne({ code });
+  if (!couponCode) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid coupon code.");
+  }
+  const coupon = await Coupon.findByIdAndUpdate(
+    { ...payload },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+  if (!coupon) {
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
+  }
+};
+//delete coupon
+const deleteCoupon = async (code: string) => {
+  const couponCode = await Coupon.findOne({ code });
+  if (!couponCode) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid coupon code.");
+  }
+  const coupon = await Coupon.findByIdAndDelete(code, {
+    new: true,
+    runValidators: true,
+  });
+};
 export const CouponService = {
   createCoupon,
-  allCoupon,couponDetails
+  allCoupon,
+  couponDetails,
+  updateCoupon,
+  deleteCoupon,
 };

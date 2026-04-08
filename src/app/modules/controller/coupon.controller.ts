@@ -39,4 +39,35 @@ const couponDetails = catchAsync(
     });
   },
 );
-export const CouponController = { createCoupon, allCoupon ,couponDetails};
+//coupon update
+const updateCoupon = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const code = req?.params?.code as string;
+    const coupon = await CouponService.updateCoupon(code, req.body);
+    sendResponse(res, {
+      success: true,
+      message: "Coupon updated successfully!",
+      statusCode: httpStatus.OK,
+      data: coupon,
+    });
+  },
+);
+const deleteCoupon = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const code = req?.params?.code as string;
+    const coupon = await CouponService.deleteCoupon(code);
+    sendResponse(res, {
+      success: true,
+      message: "Coupon deleted successfully!",
+      statusCode: httpStatus.OK,
+      data: coupon,
+    });
+  },
+);
+export const CouponController = {
+  createCoupon,
+  allCoupon,
+  couponDetails,
+  deleteCoupon,
+  updateCoupon,
+};
