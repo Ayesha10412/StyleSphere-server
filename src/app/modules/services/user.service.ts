@@ -31,6 +31,8 @@ const createUser = async (payload: IUser) => {
     auths: [authProvider],
     ...rest,
   });
+    // ✅ Audit log
+ 
   return user;
 };
 ///get all users
