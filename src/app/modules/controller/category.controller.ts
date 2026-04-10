@@ -7,12 +7,20 @@ import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
 import { Category } from "../model/categories.model";
 import { User } from "../model/user.models";
+import { AuditService } from "../services/audit.service";
 const createCategory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as JwtPayload;
+    const user = req?.user as JwtPayload;
     console.log(user);
-    const userId = user.userId;
+    const userId = user?.userId;
     const category = await CategoryService.createCategory(userId, req.body);
+    await AuditService.createAudit({
+      actionType: "CATEGORY_CREATED",
+      performedBy: userId,
+      targetId: category._id,
+      targetCollection: "categories",
+      metadata: { name: category?.name },
+    });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,

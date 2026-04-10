@@ -5,6 +5,7 @@ import { CartServices } from "../services/cart.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/appError";
+import { AuditService } from "../services/audit.service";
 const createCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
@@ -13,8 +14,15 @@ const createCart = catchAsync(
         "Please login first to add item into cart.",
       );
     }
-    const userId = (req.user as JwtPayload).userId;
+    const userId = (req?.user as JwtPayload)?.userId;
     const cart = await CartServices.addToCart(userId, req.body);
+      await AuditService.createAudit({
+          actionType: "CART_CREATED",
+          performedBy: userId,
+          targetId: cart._id,
+          targetCollection: "cart",
+          metadata: { name: cart?.items },
+        });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,

@@ -12,6 +12,7 @@ const createNotification = catchAsync(
       userId,
       req.body,
     );
+    
     sendResponse(res, {
       success: true,
       message: "Notification created successfully",
