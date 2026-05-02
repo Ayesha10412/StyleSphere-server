@@ -77,8 +77,10 @@ const deleteUser = catchAsync(
 );
 const getMe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const decodedToken = req.user as JwtPayload;
-    const user = await UserService.getMe(decodedToken.userId);
+    const decodedToken = req?.user as JwtPayload;
+    //console.log(decodedToken.userId)
+    const loggedInUserId = decodedToken?.userId;
+    const user = await UserService.getMe(loggedInUserId);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,

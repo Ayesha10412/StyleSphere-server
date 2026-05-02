@@ -15,3 +15,4 @@ export interface IQuery {
   searchTerm?: string;
   [key: string]: string | undefined; // for filters like role, isActive
 }
+export const commissionRate = 0.1; // 10% commission

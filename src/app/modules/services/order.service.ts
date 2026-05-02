@@ -2,12 +2,11 @@ import AppError from "../../errorHelpers/appError";
 import { IOrder } from "../interface/order.interface";
 import { Cart } from "../model/cart.model";
 import httpStatus from "http-status-codes";
-import { commissionRate } from "../../interfaces";
 import { Order } from "../model/order.model";
 import { PaymentService } from "./payment.service";
-import { IQuery } from "../../interfaces/error.types";
 import { QueryBuilder } from "../../utils/queryBuilder";
 import { Coupon } from "../model/coupon.model";
+import { commissionRate, IQuery } from "../../interfaces/error.types";
 const createOrder = async (userId: string, payload: IOrder) => {
   const cart = await Cart.findOne({ user: userId });
   if (!cart || cart.items.length === 0) {

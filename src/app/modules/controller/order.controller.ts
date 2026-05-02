@@ -5,7 +5,6 @@ import { OrderService } from "../services/order.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
-import { AuditService } from "../services/audit.service";
 const createOrder = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req?.user as JwtPayload).userId;
