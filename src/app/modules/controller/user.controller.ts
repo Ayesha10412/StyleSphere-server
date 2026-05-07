@@ -8,15 +8,15 @@ import { IQuery } from "../../interfaces/error.types";
 import { AuditService } from "../services/audit.service";
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loggedInUserId = (req?.user as JwtPayload).userId;
+    //const loggedInUserId = (req?.user as JwtPayload)?.userId;
     const user = await UserService.createUser(req.body);
-    await AuditService.createAudit({
-      actionType: "USER_CREATED",
-      performedBy: loggedInUserId, // who did it
-      targetId: user._id, // the user created
-      targetCollection: "users",
-      metadata: { email: user.email },
-    });
+    // await AuditService.createAudit({
+    //   actionType: "USER_CREATED",
+    //   performedBy: loggedInUserId, // who did it
+    //   targetId: user._id, // the user created
+    //   targetCollection: "users",
+    //   metadata: { email: user.email },
+    // });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,

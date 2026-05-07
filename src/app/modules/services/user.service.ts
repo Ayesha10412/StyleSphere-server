@@ -30,9 +30,10 @@ const createUser = async (payload: IUser) => {
     password: hashedPassword,
     auths: [authProvider],
     ...rest,
+    role: ROLE.USER,
   });
-    // ✅ Audit log
- 
+  // ✅ Audit log
+
   return user;
 };
 ///get all users
@@ -61,10 +62,7 @@ const updateUser = async (
     throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
   if (payload.role) {
-    if (
-      decodedToken.role === ROLE.USER ||
-      decodedToken.role === ROLE.SELLER
-    ) {
+    if (decodedToken.role === ROLE.USER || decodedToken.role === ROLE.SELLER) {
       throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
     }
   }
@@ -72,10 +70,7 @@ const updateUser = async (
     throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
   }
   if (payload.isActive || payload.isDeleted || payload.isVerified) {
-    if (
-      decodedToken.role === ROLE.USER ||
-      decodedToken.role === ROLE.SELLER
-    ) {
+    if (decodedToken.role === ROLE.USER || decodedToken.role === ROLE.SELLER) {
       throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
     }
   }
@@ -97,10 +92,7 @@ const deleteUser = async (userId: string, decodedToken: JwtPayload) => {
   if (!isUserExist) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
-  if (
-    decodedToken.role === ROLE.USER ||
-    decodedToken.role === ROLE.SELLER
-  ) {
+  if (decodedToken.role === ROLE.USER || decodedToken.role === ROLE.SELLER) {
     throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
   }
   if (
@@ -109,10 +101,7 @@ const deleteUser = async (userId: string, decodedToken: JwtPayload) => {
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "You're not authorized!");
   }
-  const user = await User.findByIdAndDelete(
-    userId,
-    { isDeleted: true },
-  );
+  const user = await User.findByIdAndDelete(userId, { isDeleted: true });
   return user;
 };
 //getMe

@@ -27,7 +27,7 @@ export const createUserValidation = z
       .string()
       .min(6, "Confirm Password must be at least 6 characters"),
 
-    role: z.enum([...Object.values(ROLE)] as [string, ...string[]]),
+    //role: z.enum([...Object.values(ROLE)] as [string, ...string[]]).optional(),
 
     phone: z.string().optional(),
 
