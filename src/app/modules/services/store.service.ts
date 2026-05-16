@@ -59,7 +59,7 @@ const updateStore = async (
   payload: Partial<IStore>,
 ) => {
   const user = await User.findById(userId);
-  if (!user || (user?.role !== ROLE.SELLER && user?.role !== ROLE.ADMIN)) {
+  if (!user || (user?.role !== ROLE.SELLER && user?.role !== ROLE.ADMIN && user?.role !==ROLE.SUPER_ADMIN)) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "You're not permitted to update the store information.",

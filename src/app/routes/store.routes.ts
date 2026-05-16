@@ -15,20 +15,21 @@ router.get(
   checkAuth(ROLE.SUPER_ADMIN, ROLE.ADMIN),
   StoreController.getAllStore,
 );
-router.get("/me", checkAuth(ROLE.SELLER), StoreController.getMyStore);
+router.get("/me", checkAuth(ROLE.SELLER,ROLE.SUPER_ADMIN), StoreController.getMyStore);
 router.post(
   "/",
-  checkAuth(ROLE.SELLER),
+  checkAuth(ROLE.SELLER,ROLE.SUPER_ADMIN),
   multerUpload.single("storeBanner"),
   validateRequest(createStoreValidation),
   StoreController.createStore,
 );
 router.patch(
   "/:id",
-  checkAuth(ROLE.SELLER, ROLE.ADMIN),
+  checkAuth(ROLE.SELLER, ROLE.ADMIN,ROLE.SUPER_ADMIN),
   multerUpload.single("storeBanner"),
   validateRequest(updateStoreValidation),
   StoreController.updateStore,
 );
 
 export const storeRoutes = router;
+///updated super_admin into me, post, patch method for development purpose.

@@ -64,11 +64,13 @@ const updateStore = catchAsync(
     const user = req.user as JwtPayload;
     console.log(user);
     const userId = user.userId;
+    console.log("userId:",userId)
     const stores = await Store.findOne({ owner: userId });
     console.log("stores:", stores);
     const storeId = stores?._id.toString();
     console.log(storeId);
-    const storeBanner = (req.file as any).path;
+    const storeBanner = (req.file as any)?.path;
+    console.log("storeBanner:",storeBanner)
     const payload = {
       ...req.body,
       ...(storeBanner && { storeBanner }),
