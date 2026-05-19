@@ -61,7 +61,9 @@ const updateCategory = async (
     throw new AppError(httpStatus.NOT_FOUND, "Category not found!");
   }
   const user = await User.findById(userId);
-  if ((!user && user!.role !== ROLE.ADMIN) || user!.role !== ROLE.SELLER) {
+  if (
+    !user || ![ROLE.SUPER_ADMIN ,ROLE.ADMIN,ROLE.SELLER].includes(user?.role)
+  ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "You're not permitted to view route.",
@@ -87,9 +89,7 @@ const deleteCategory = async (categoryId: string, userId: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "User not found.");
   }
   if (
-    user.role !== ROLE.ADMIN &&
-    user.role !== ROLE.SUPER_ADMIN &&
-    user.role !== ROLE.SELLER
+    ![ROLE.SUPER_ADMIN,ROLE.ADMIN,ROLE.SELLER].includes(user?.role)
   ) {
     throw new AppError(
       httpStatus.BAD_REQUEST,

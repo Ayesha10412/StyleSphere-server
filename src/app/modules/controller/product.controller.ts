@@ -5,7 +5,6 @@ import { ProductService } from "../services/product.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { IQuery } from "../../interfaces/error.types";
-import { AuditService } from "../services/audit.service";
 const createProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = req?.user as JwtPayload;
@@ -28,13 +27,7 @@ const createProduct = catchAsync(
       category,
       images: imageUrls,
     });
-    await AuditService.createAudit({
-      actionType: "PRODUCT_CREATED",
-      performedBy: seller,
-      targetId: product._id,
-      targetCollection: "products",
-      metadata: { name: product?.title },
-    });
+
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
@@ -46,7 +39,8 @@ const createProduct = catchAsync(
 //get All product
 const getAllProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const product = await ProductService.getAllProduct(req.query as IQuery);
+    const product = await ProductService.getAllProduct(req?.query as IQuery);
+    console.log("Product:", product);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,

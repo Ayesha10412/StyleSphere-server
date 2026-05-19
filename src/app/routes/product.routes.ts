@@ -11,7 +11,10 @@ import { checkAuth } from "../middlewares/checkAuth";
 import { ROLE } from "../modules/interface/user.interface";
 
 const router = Router();
-router.get("/", ProductController.getAllProduct);
+router.get(
+  "/",
+  ProductController.getAllProduct,
+);
 router.get("/:id", ProductController.productDetails);
 router.post(
   "/",

@@ -14,13 +14,13 @@ const createCategory = catchAsync(
     console.log(user);
     const userId = user?.userId;
     const category = await CategoryService.createCategory(userId, req.body);
-    await AuditService.createAudit({
-      actionType: "CATEGORY_CREATED",
-      performedBy: userId,
-      targetId: category._id,
-      targetCollection: "categories",
-      metadata: { name: category?.name },
-    });
+    // await AuditService.createAudit({
+    //   actionType: "CATEGORY_CREATED",
+    //   performedBy: userId,
+    //   targetId: category._id,
+    //   targetCollection: "categories",
+    //   metadata: { name: category?.name },
+    // });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
@@ -68,7 +68,7 @@ const updateCategory = catchAsync(
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
-      message: "Category updated retrieved successfully.",
+      message: "Category updated successfully.",
       data: category,
     });
   },
