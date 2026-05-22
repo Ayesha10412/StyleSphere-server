@@ -49,12 +49,12 @@ const createProduct = async (userId: string, payload: IProduct) => {
 };
 //get all product
 const getAllProduct = async (query: IQuery) => {
-  const builder = new QueryBuilder(Product.find().lean(), query)
+  const builder = new QueryBuilder(Product.find().lean().populate("category","name"), query)
     .fields()
     .sort()
     .paginate()
     // .search(["title price variants.size variants.color"])
-    .search(["title", "variants.size", "variants.color"])
+    .search(["title", "price","variants.size", "variants.color"])
     .filter();
   const product = await builder.build();
   const meta = await builder.getMeta();
@@ -62,7 +62,7 @@ const getAllProduct = async (query: IQuery) => {
 };
 ///get product by id
 const productDetails = async (productId: string) => {
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate("category","name");
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
   }

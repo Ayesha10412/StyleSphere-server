@@ -2,7 +2,7 @@ import z from "zod";
 const productVariantValidation = z.object({
   size: z.string(),
   color: z.string(),
-  stock: z.number(),
+  stock: z.string(),
   sku: z.string().optional(),
 });
 export const createProductValidation = z.object({
@@ -19,7 +19,7 @@ export const createProductValidation = z.object({
 export const updateProductValidation = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  price: z.number().optional(),
+  price: z.coerce.number().optional(),
   discountPrice: z.number().optional(),
   images: z.array(z.string()).optional(),
   variants: z.array(productVariantValidation).optional(),
