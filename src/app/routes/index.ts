@@ -13,6 +13,8 @@ import { notificationRoutes } from "./notification.routes";
 import { orderRoutes } from "./order.routes";
 import { couponRoutes } from "./coupon.routes";
 import { auditRoutes } from "./audit.routes";
+import { dashboardRoutes } from "./dashboard.routes";
+import { reportRoutes } from "./report.routes";
 export const router = Router();
 const moduleRoutes = [
   {
@@ -44,6 +46,10 @@ const moduleRoutes = [
     route: cartRoutes,
   },
   {
+    path: "/dashboard",
+    route: dashboardRoutes,
+  },
+  {
     path: "/payment",
     route: PaymentRoutes,
   },
@@ -69,7 +75,11 @@ const moduleRoutes = [
   },
   {
     path: "/audit",
-    route: auditRoutes,
+    route: reportRoutes,
+  },
+  {
+    path: "/report",
+    route: reportRoutes,
   },
 ];
 moduleRoutes.forEach((route) => {
