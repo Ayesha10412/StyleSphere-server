@@ -113,6 +113,25 @@ const addToCart = async (userId: string, payload: ICart) => {
 
   return cart;
 };
+const getMyCart = async (userId: string) => {
+  const cart = await Cart.findOne({
+    user: userId,
+  })
+    .populate({
+      path: "items.product",
+      select: "title price discountPrice images category",
+    })
+    .lean();
+
+  if (!cart) {
+    return {
+      items: [],
+      totalPrice: 0,
+    };
+  }
+
+  return cart;
+};
 const updateCartItem = async (
   userId: string,
   productId: string,
@@ -192,4 +211,4 @@ const clearCart = async (userId: string) => {
 
   return cart;
 };
-export const CartServices = { addToCart, updateCartItem, removeCartItem , clearCart};
+export const CartServices = { addToCart, updateCartItem, removeCartItem , clearCart,getMyCart};

@@ -31,6 +31,18 @@ const createCart = catchAsync(
     });
   },
 );
+const getMyCart = catchAsync(async (req: Request, res: Response) => {
+  const userId = (req?.user as JwtPayload).userId;
+
+  const cart = await CartServices.getMyCart(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Cart retrieved successfully",
+    data: cart,
+  });
+});
 //update cart
 const updateCartItem = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -72,4 +84,4 @@ const clearCart=catchAsync(async(req:Request,res:Response,next:NextFunction)=>{
     data:cart,
   })
 })
-export const CartController = { createCart, updateCartItem, removeCartItem, clearCart };
+export const CartController = { createCart, updateCartItem, removeCartItem, clearCart, getMyCart };

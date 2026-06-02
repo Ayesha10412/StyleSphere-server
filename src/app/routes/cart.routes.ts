@@ -9,6 +9,11 @@ import {
 import { CartController } from "../modules/controller/cart.controller";
 
 const router = Router();
+router.get(
+  "/get-my-cart",
+  checkAuth(ROLE.USER,ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.SELLER),
+  CartController.getMyCart,
+);
 router.post(
   "/add-to-cart",
   checkAuth(ROLE.USER),
