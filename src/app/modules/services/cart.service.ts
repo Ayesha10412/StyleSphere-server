@@ -119,7 +119,7 @@ const getMyCart = async (userId: string) => {
   })
     .populate({
       path: "items.product",
-      select: "title price discountPrice images category",
+      select: "title price discountPrice images category variants",
     })
     .lean();
 
@@ -132,6 +132,50 @@ const getMyCart = async (userId: string) => {
 
   return cart;
 };
+// const updateCartItem = async (
+//   userId: string,
+//   productId: string,
+//   quantity: number,
+//   variant?: { size?: string; color?: string },
+// ) => {
+//   const cart = await Cart.findOne({ user: userId });
+//   if (!cart) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Cart not found!");
+//   }
+//   const item = cart.items.find((i) => {
+//     const sameProduct = i.product.toString() === productId;
+
+//     const sameVariant =
+//       (!variant && !i.variant) ||
+//       (variant &&
+//         i.variant &&
+//         i.variant.size === variant.size &&
+//         i.variant.color === variant.color);
+
+//     return sameProduct && sameVariant;
+//   });
+//   if (!item) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Item not found.");
+//   }
+//   if (quantity <= 0) {
+//     throw new AppError(httpStatus.BAD_REQUEST, "Invalid quantity.");
+//   }
+//   const product = await Product.findById(productId);
+//   if (!product || product.variants[0].stock < quantity.toString()) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
+//   }
+//   item.quantity = quantity;
+//   //recalculate price
+//   let totalPrice = 0;
+//   for (const i of cart.items) {
+//     const p = await Product.findById(i.product);
+//     totalPrice += p!.price * i.quantity;
+//   }
+//   cart.totalPrice = totalPrice;
+//   await cart.save();
+//   return cart;
+// };
+//remove all items from cart
 const updateCartItem = async (
   userId: string,
   productId: string,
@@ -139,37 +183,65 @@ const updateCartItem = async (
   variant?: { size?: string; color?: string },
 ) => {
   const cart = await Cart.findOne({ user: userId });
+
   if (!cart) {
     throw new AppError(httpStatus.NOT_FOUND, "Cart not found!");
   }
-  const item = cart.items.find(
-    (i) =>
-      i.product.toString() === productId &&
-      i.variant?.size === variant &&
-      i.variant?.color === variant,
-  );
+  console.log(cart);
+  const item = cart.items.find((i) => {
+    const sameProduct = i.product.toString() === productId;
+
+    const sameVariant =
+      (!variant?.size || i.variant?.size === variant.size) &&
+      (!variant?.color || i.variant?.color === variant.color);
+
+    return sameProduct && sameVariant;
+  });
+
   if (!item) {
     throw new AppError(httpStatus.NOT_FOUND, "Item not found.");
   }
+
   if (quantity <= 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Invalid quantity.");
   }
+
   const product = await Product.findById(productId);
-  if (!product || product.variants[0].stock < quantity.toString()) {
+
+  if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found.");
   }
+
+  const matchedVariant = product.variants.find((v) => {
+    return (
+      (!variant?.size || v.size === variant.size) &&
+      (!variant?.color || v.color === variant.color)
+    );
+  });
+  console.log(matchedVariant);
+  if (!matchedVariant) {
+    throw new AppError(httpStatus.NOT_FOUND, "Variant not found.");
+  }
+
+  if (Number(matchedVariant.stock) < quantity) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient stock.");
+  }
+
   item.quantity = quantity;
-  //recalculate price
+
   let totalPrice = 0;
+
   for (const i of cart.items) {
     const p = await Product.findById(i.product);
     totalPrice += p!.price * i.quantity;
   }
+
   cart.totalPrice = totalPrice;
+
   await cart.save();
   return cart;
 };
-//remove all items from cart
+
 const removeCartItem = async (
   userId: string,
   productId: string,
@@ -182,9 +254,9 @@ const removeCartItem = async (
   cart.items = cart.items.filter(
     (i) =>
       !(
-        i.product.toString() === productId &&
-        i.variant?.size === variant?.size &&
-        i.variant?.color === variant?.color
+        i?.product?.toString() === productId &&
+        i?.variant?.size === variant?.size &&
+        i?.variant?.color === variant?.color
       ),
   );
   //recalculate price
@@ -211,4 +283,10 @@ const clearCart = async (userId: string) => {
 
   return cart;
 };
-export const CartServices = { addToCart, updateCartItem, removeCartItem , clearCart,getMyCart};
+export const CartServices = {
+  addToCart,
+  updateCartItem,
+  removeCartItem,
+  clearCart,
+  getMyCart,
+};

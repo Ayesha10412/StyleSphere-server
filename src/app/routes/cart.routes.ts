@@ -10,7 +10,7 @@ import { CartController } from "../modules/controller/cart.controller";
 
 const router = Router();
 router.get(
-  "/get-my-cart",
+  "/my-cart",
   checkAuth(ROLE.USER,ROLE.ADMIN, ROLE.SUPER_ADMIN, ROLE.SELLER),
   CartController.getMyCart,
 );

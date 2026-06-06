@@ -6,6 +6,7 @@ import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/appError";
 import { AuditService } from "../services/audit.service";
+import { request } from "node:http";
 const createCart = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
@@ -16,13 +17,13 @@ const createCart = catchAsync(
     }
     const userId = (req?.user as JwtPayload)?.userId;
     const cart = await CartServices.addToCart(userId, req.body);
-      await AuditService.createAudit({
-          actionType: "CART_CREATED",
-          performedBy: userId,
-          targetId: cart._id,
-          targetCollection: "cart",
-          metadata: { name: cart?.items },
-        });
+      // await AuditService.createAudit({
+      //     actionType: "CART_CREATED",
+      //     performedBy: userId,
+      //     targetId: cart._id,
+      //     targetCollection: "cart",
+      //     metadata: { name: cart?.items },
+      //   });
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
@@ -48,6 +49,7 @@ const updateCartItem = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = (req.user as JwtPayload).userId;
     const { productId, quantity, variant } = req.body;
+    console.log("REQ BODY:", req.body);
     const cart = await CartServices.updateCartItem(
       userId,
       productId,

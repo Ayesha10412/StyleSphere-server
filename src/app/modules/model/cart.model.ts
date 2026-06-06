@@ -5,10 +5,10 @@ const cartItemSchema = new Schema<ICartItem>(
   {
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
     variant: {
-      size: { type: String, required: true },
-      color: { type: String, required: true },
+      size: { type: String },
+      color: { type: String },
     },
-    price: { type: Number, required: true, min: 0 },
+    price: { type: Number },
     quantity: { type: Number, required: true, min: 1 },
   },
   { _id: false },
