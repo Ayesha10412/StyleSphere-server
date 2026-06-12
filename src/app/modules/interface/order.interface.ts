@@ -38,6 +38,9 @@ export interface IOrder {
     changedAt: Date;
     changedBy: Types.ObjectId;
   }[];
-  shippingAddress: string;
-  
+  shippingAddress: {
+    division: string;
+    district: string;
+    address: string;
+  };
 }

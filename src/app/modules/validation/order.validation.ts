@@ -52,5 +52,9 @@ export const createOrderValidation = z.object({
     )
     .optional(),
   transactionId: z.string().optional(),
-  shippingAddress: z.string("Shipping address is required"),
+  shippingAddress: z.object({
+    division: z.string(),
+    district: z.string(),
+    address: z.string(),
+  }),
 });

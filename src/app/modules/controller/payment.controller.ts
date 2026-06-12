@@ -3,6 +3,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
 import { PaymentService } from "../services/payment.service";
+import { envVars } from "../../config/env";
 const initPayment = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const order = req.params.orderId as string;
@@ -19,12 +20,13 @@ const successPayment = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query as Record<string, string>;
     const result = await PaymentService.successPayment(query);
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "Payment successful",
-      data: result,
-    });
+    // sendResponse(res, {
+    //   success: true,
+    //   statusCode: httpStatus.OK,
+    //   message: "Payment successful",
+    //   data: result,
+    // });
+   return res.redirect(`${envVars.SSL_SUCCESS_FRONTEND_URL}`);
   },
 );
 //failed payment

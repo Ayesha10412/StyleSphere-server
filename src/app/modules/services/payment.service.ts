@@ -44,6 +44,13 @@ const initPayment = async (
     transactionId: payment.transactionId,
   };
   const sslPayment = await SSLService.sslPaymentInit(sslPayload);
+console.log("SSL FULL RESPONSE:", sslPayment);
+  if (!sslPayment || !sslPayment.GatewayPageURL) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Failed to initialize payment gateway",
+    );
+  }
   payment.paymentGatewayData = sslPayment;
   await payment.save();
   return {

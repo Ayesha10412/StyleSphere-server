@@ -7,8 +7,12 @@ import { PaymentService } from "./payment.service";
 import { QueryBuilder } from "../../utils/queryBuilder";
 import { Coupon } from "../model/coupon.model";
 import { commissionRate, IQuery } from "../../interfaces/error.types";
+import { Types } from "mongoose";
 const createOrder = async (userId: string, payload: IOrder) => {
-  const cart = await Cart.findOne({ user: userId });
+const cart = await Cart.findOne({ user: userId }).populate({
+  path: "items.product",
+  select: "_id price seller",
+});
   if (!cart || cart.items.length === 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -16,10 +20,44 @@ const createOrder = async (userId: string, payload: IOrder) => {
     );
   }
   let totalAmount = 0;
+  // const orderItems = cart.items.map((item) => {
+  //   const product = item.product as unknown as { price: number };
+  //   if (!product || typeof product.price !== "number") {
+  //     throw new AppError(
+  //       httpStatus.BAD_REQUEST,
+  //       "Cart contains invalid product data.",
+  //     );
+  //   }
+  //   const subTotal = product.price * item.quantity;
+  //   totalAmount += subTotal;
+  //   return { ...item, subTotal };
+  // });
   const orderItems = cart.items.map((item) => {
-    const subTotal = item.price * item.quantity;
+    const product = item.product as unknown as {
+      _id: Types.ObjectId;
+      price: number;
+      seller: Types.ObjectId;
+    };
+
+    if (!product) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Cart contains invalid product data.",
+      );
+    }
+
+    const subTotal = product.price * item.quantity;
+
     totalAmount += subTotal;
-    return { ...item, subTotal };
+
+    return {
+      product: product._id,
+      seller: product.seller,
+      variant: item.variant,
+      price: product.price,
+      quantity: item.quantity,
+      subTotal,
+    };
   });
   let discount = 0;
   let appliedCoupon = null;
