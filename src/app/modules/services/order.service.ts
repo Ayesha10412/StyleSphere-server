@@ -9,10 +9,10 @@ import { Coupon } from "../model/coupon.model";
 import { commissionRate, IQuery } from "../../interfaces/error.types";
 import { Types } from "mongoose";
 const createOrder = async (userId: string, payload: IOrder) => {
-const cart = await Cart.findOne({ user: userId }).populate({
-  path: "items.product",
-  select: "_id price seller",
-});
+  const cart = await Cart.findOne({ user: userId }).populate({
+    path: "items.product",
+    select: "_id price seller",
+  });
   if (!cart || cart.items.length === 0) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -124,6 +124,31 @@ const allOrder = async (query: IQuery) => {
   const meta = await builder.getMeta();
   return { data, meta };
 };
+//get seller shop order
+const myShopOrder = async (sellerId: string,query:IQuery) => {
+     const builder = new QueryBuilder(
+       Order.find({ seller: sellerId }).lean(),
+       query,
+     )
+       .filter()
+       .paginate()
+       .search(["status"])
+       .sort();
+     const data = await builder.build();
+     const meta = await builder.getMeta();
+     return { data, meta };
+};
+//get my order
+const myOrder = async (userId: string) => {
+  const order = await Order.find({ user: userId })
+    .populate("items.product", "title price discountPrice images")
+    .sort({ createdAt: -1 });
+  console.log(order)
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "No order found!");
+  }
+  return { order };
+};
 //order details
 const orderDetails = async (orderId: string) => {
   const order = await Order.findById(orderId);
@@ -137,4 +162,5 @@ export const OrderService = {
   createOrder,
   allOrder,
   orderDetails,
+  myOrder,myShopOrder
 };

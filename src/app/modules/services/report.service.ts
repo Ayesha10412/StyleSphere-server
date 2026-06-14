@@ -20,7 +20,7 @@ const report = async (query: IQuery) => {
   }
 
   // 2. Create QueryBuilder with pre-filtered query
-  const builder = new QueryBuilder(Order.find(filter).lean(), query)
+  const builder = new QueryBuilder(Order.find(filter).populate("user", "name email").lean(), query)
     .filter()
     .search(["paymentStatus"])
     .sort()

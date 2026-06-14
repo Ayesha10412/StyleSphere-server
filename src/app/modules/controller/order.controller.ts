@@ -36,6 +36,31 @@ const allOrder = catchAsync(
     });
   },
 );
+
+
+
+const myShopOrder = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const sellerId = (req?.user as JwtPayload) 
+  const query=req.query as IQuery
+  const order = await OrderService.myShopOrder(sellerId?.userId,query)
+   sendResponse(res, {
+     success: true,
+     statusCode: httpStatus.OK,
+     message: "Orders retrieved successfully.",
+     data: order,
+   });
+})
+const myOrder = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = (req?.user as JwtPayload) 
+  console.log(":",userId)
+  const order = await OrderService.myOrder(userId?.userId)
+   sendResponse(res, {
+     success: true,
+     statusCode: httpStatus.OK,
+     message: "Orders retrieved successfully.",
+     data: order,
+   });
+})
 const orderDetails = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const orderId = req.params.orderId as string;
@@ -52,4 +77,5 @@ export const orderController = {
   createOrder,
   allOrder,
   orderDetails,
+  myOrder,myShopOrder
 };
