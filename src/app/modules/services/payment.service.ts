@@ -7,6 +7,7 @@ import { SSLService } from "./sslCommerz.service";
 import { PAYMENT_STATUS } from "../interface/payment.interface";
 import { IOrder } from "../interface/order.interface";
 import crypto from "crypto";
+import { Cart } from "../model/cart.model";
 const createPayment = async (order: IOrder) => {
   const transactionId = `TXN-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
 
@@ -44,7 +45,7 @@ const initPayment = async (
     transactionId: payment.transactionId,
   };
   const sslPayment = await SSLService.sslPaymentInit(sslPayload);
-console.log("SSL FULL RESPONSE:", sslPayment);
+  console.log("SSL FULL RESPONSE:", sslPayment);
   if (!sslPayment || !sslPayment.GatewayPageURL) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
@@ -58,24 +59,74 @@ console.log("SSL FULL RESPONSE:", sslPayment);
   };
 };
 //success payment
+// const successPayment = async (query: Record<string, string>) => {
+//   const session = await Order.startSession();
+//   session.startTransaction();
+//   try {
+//     const updatedPayment = await Payment.findOneAndUpdate(
+//       {
+//         transactionId: query.transactionId,
+//       },
+//       { status: PAYMENT_STATUS.PAID },
+//       { new: true, runValidators: true },
+//     );
+//     await Order.findByIdAndUpdate(
+//       updatedPayment?.order,
+//       { status: PAYMENT_STATUS.COMPLETED },
+//       { new: true, runValidators: true },
+//     );
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     return { success: true, message: "Payment Successful" };
+
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     throw error;
+//   }
+// };
 const successPayment = async (query: Record<string, string>) => {
   const session = await Order.startSession();
-  session.startTransaction();
+
   try {
-    const updatedPayment = await Payment.findOneAndUpdate(
-      {
-        transactionId: query.transactionId,
-      },
+    session.startTransaction();
+
+    const payment = await Payment.findOneAndUpdate(
+      { transactionId: query.transactionId },
       { status: PAYMENT_STATUS.PAID },
-      { new: true, runValidators: true },
+      { new: true, session },
     );
-    await Order.findByIdAndUpdate(
-      updatedPayment?.order,
+
+    if (!payment) {
+      throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+    }
+
+    const order = await Order.findByIdAndUpdate(
+      payment.order,
       { status: PAYMENT_STATUS.COMPLETED },
-      { new: true, runValidators: true },
+      { new: true, session },
     );
+
+    if (!order) {
+      throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+    }
+
+    // ✅ CLEAR CART HERE (NOW ORDER EXISTS)
+    await Cart.findOneAndUpdate(
+      { user: order.user },
+      {
+        $set: {
+          items: [],
+          totalPrice: 0,
+        },
+      },
+      { session },
+    );
+
     await session.commitTransaction();
     session.endSession();
+
     return { success: true, message: "Payment Successful" };
   } catch (error) {
     await session.abortTransaction();
