@@ -115,7 +115,7 @@ const createOrder = async (userId: string, payload: IOrder) => {
 };
 //get all order
 const allOrder = async (query: IQuery) => {
-  const builder = new QueryBuilder(Order.find().lean(), query)
+  const builder = new QueryBuilder(Order.find().populate("user" ,"name").lean(), query)
     .filter()
     .paginate()
     .search(["status"])

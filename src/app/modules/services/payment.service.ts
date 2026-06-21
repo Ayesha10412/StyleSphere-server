@@ -58,53 +58,78 @@ const initPayment = async (
     paymentUrl: sslPayment.GatewayPageURL,
   };
 };
-//success payment
+
 // const successPayment = async (query: Record<string, string>) => {
 //   const session = await Order.startSession();
-//   session.startTransaction();
+
 //   try {
-//     const updatedPayment = await Payment.findOneAndUpdate(
-//       {
-//         transactionId: query.transactionId,
-//       },
+//     session.startTransaction();
+
+//     const payment = await Payment.findOneAndUpdate(
+//       { transactionId: query.transactionId },
 //       { status: PAYMENT_STATUS.PAID },
-//       { new: true, runValidators: true },
+//       { new: true, session },
 //     );
-//     await Order.findByIdAndUpdate(
-//       updatedPayment?.order,
+
+//     if (!payment) {
+//       throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+//     }
+
+//     const order = await Order.findByIdAndUpdate(
+//       payment.order,
 //       { status: PAYMENT_STATUS.COMPLETED },
-//       { new: true, runValidators: true },
+//       { new: true, session },
 //     );
+
+//     if (!order) {
+//       throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+//     }
+
+//     // ✅ CLEAR CART HERE (NOW ORDER EXISTS)
+//     await Cart.findOneAndUpdate(
+//       { user: order.user },
+//       {
+//         $set: {
+//           items: [],
+//           totalPrice: 0,
+//         },
+//       },
+//       { session },
+//     );
+
 //     await session.commitTransaction();
 //     session.endSession();
 
 //     return { success: true, message: "Payment Successful" };
-
 //   } catch (error) {
 //     await session.abortTransaction();
 //     session.endSession();
 //     throw error;
 //   }
 // };
+//failed payment
 const successPayment = async (query: Record<string, string>) => {
   const session = await Order.startSession();
 
   try {
     session.startTransaction();
 
-    const payment = await Payment.findOneAndUpdate(
+    const updatedPayment = await Payment.findOneAndUpdate(
       { transactionId: query.transactionId },
       { status: PAYMENT_STATUS.PAID },
       { new: true, session },
     );
 
-    if (!payment) {
+    if (!updatedPayment) {
       throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
     }
 
     const order = await Order.findByIdAndUpdate(
-      payment.order,
-      { status: PAYMENT_STATUS.COMPLETED },
+      updatedPayment.order,
+      {
+        paymentStatus: PAYMENT_STATUS.PAID,
+        status: "processing",
+      },
       { new: true, session },
     );
 
@@ -112,20 +137,14 @@ const successPayment = async (query: Record<string, string>) => {
       throw new AppError(httpStatus.NOT_FOUND, "Order not found");
     }
 
-    // ✅ CLEAR CART HERE (NOW ORDER EXISTS)
-    await Cart.findOneAndUpdate(
-      { user: order.user },
-      {
-        $set: {
-          items: [],
-          totalPrice: 0,
-        },
-      },
-      { session },
-    );
-
     await session.commitTransaction();
     session.endSession();
+
+    // clear cart AFTER commit
+    await Cart.findOneAndUpdate(
+      { user: order.user },
+      { $set: { items: [], totalPrice: 0 } },
+    );
 
     return { success: true, message: "Payment Successful" };
   } catch (error) {
@@ -134,7 +153,6 @@ const successPayment = async (query: Record<string, string>) => {
     throw error;
   }
 };
-//failed payment
 const failedPayment = async (query: Record<string, string>) => {
   const session = await Order.startSession();
   session.startTransaction();
